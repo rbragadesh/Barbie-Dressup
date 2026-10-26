@@ -3,6 +3,7 @@
 
 import { store, loadFace } from './store.js';
 import { setFacePhoto } from './doll.js';
+import { showPhotos } from './scenes.js';
 import { registerScreen, go, celebrate } from './ui.js';
 import { checkRewards, onAnnounce } from './game.js';
 import { home, welcome, settings } from './screens/home.js';
@@ -39,6 +40,7 @@ onAnnounce(celebrate);
 store.onChange(checkRewards);
 
 setFacePhoto(loadFace());
+showPhotos(store.state.settings.photos);
 go(store.state.onboarded ? 'home' : 'welcome');
 
 // Stop iOS from zooming on double-tap or pinch while a child is playing.

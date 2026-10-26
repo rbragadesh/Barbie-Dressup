@@ -148,7 +148,7 @@ test('clock words and money formatting', () => {
 test('offline cache lists every app file', () => {
   const sw = fs.readFileSync('sw.js', 'utf8');
   const walk = dir => fs.readdirSync(dir, { withFileTypes: true }).flatMap(d => d.isDirectory() ? walk(path.join(dir, d.name)) : [path.join(dir, d.name)]);
-  for (const f of [...walk('js'), ...walk('css'), ...walk('icons'), 'index.html', 'manifest.webmanifest']) {
+  for (const f of [...walk('js'), ...walk('css'), ...walk('icons'), ...walk('photos'), 'index.html', 'manifest.webmanifest']) {
     assert.ok(sw.includes(`'${f.split(path.sep).join('/')}'`), `sw.js is missing ${f}: run node scripts/build-sw.mjs`);
   }
 });
@@ -260,4 +260,34 @@ test('the photo face is drawn only when a photo is set', () => {
   } finally {
     setFacePhoto(null);
   }
+});
+
+// ---------- Real landmark photos ----------
+
+import { PHOTOS } from '../js/data/photos.js';
+import { showPhotos, sceneSVG, sceneThumb } from '../js/scenes.js';
+
+test('every landmark photo is in the repo, credited and used by a scene', () => {
+  for (const [id, p] of Object.entries(PHOTOS)) {
+    assert.ok(SCENE_IDS.includes(id), `photo for unknown scene ${id}`);
+    assert.ok(fs.existsSync(p.src), `${p.src} missing`);
+    assert.ok(fs.statSync(p.src).size < 450e3, `${p.src} is too big for the offline cache`);
+    for (const k of ['what', 'author', 'licence', 'page']) assert.ok(p[k], `${id} needs ${k}`);
+    assert.match(p.licence, /^(CC0|Public domain|CC BY(-SA)? \d)/, `${id} licence`);
+    assert.ok(p.w > 0 && p.h > 0 && p.pos.every(v => v >= 0 && v <= 100), `${id} size and position`);
+  }
+  for (const c of COUNTRIES) {
+    assert.ok(PHOTOS[c.id], `${c.id} has no photo`);
+    if (c.worship) assert.ok(PHOTOS[c.worship.scene], `${c.worship.scene} has no photo`);
+  }
+  showPhotos(true);
+  try {
+    assert.ok(renderScene('IN').includes('photo-scene'));
+    assert.match(sceneSVG('IN', '<g id="doll"/>'), /<image [^>]*\/><g id="doll"\/>\s*<text/, 'doll between photo and credit');
+    assert.ok(sceneThumb('IN').includes('<image'));
+    assert.ok(renderScene('studio').startsWith('<svg'), 'scenes without a photo stay drawn');
+  } finally {
+    showPhotos(false);
+  }
+  assert.ok(renderScene('IN').startsWith('<svg'), 'drawings when photos are switched off');
 });

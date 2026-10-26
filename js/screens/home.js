@@ -7,6 +7,8 @@ import { cropFace } from './facecrop.js';
 import { rankInfo, giftReady, openGift } from '../game.js';
 import { nameBook } from '../data/names.js';
 import { COUNTRIES } from '../data/countries.js';
+import { PHOTOS } from '../data/photos.js';
+import { showPhotos } from '../scenes.js';
 import { allItems } from '../items.js';
 import { sfx, speak, unlockAudio, englishVoices, canSpeak } from '../audio.js';
 import { go, topbar, stageHTML, bubble, setWeather, parentGate, modal, closeModal, toast, confetti, refreshStars } from '../ui.js';
@@ -96,6 +98,15 @@ export function welcome(el) {
   });
 }
 
+// Every photo with its author, licence and source, as the photo licences ask.
+function photoCredits() {
+  const link = (url, text) => (url ? `<a href="${esc(url)}" target="_blank" rel="noopener">${esc(text)}</a>` : esc(text));
+  modal(`<h2>📷 Photo credits</h2>
+    <p class="note">The landmark photos come from Wikimedia Commons. They have been resized, and each one is shared under the licence shown.</p>
+    <div class="credits">${Object.values(PHOTOS).map(p => `<div class="credit"><img src="${p.src}" alt="" loading="lazy"><div><b>${esc(p.what)}</b><br>Photo: ${esc(p.author)}<br>${link(p.licenceUrl, p.licence)} · ${link(p.page, 'Source')}</div></div>`).join('')}</div>
+    <div class="actions"><button class="btn" data-close>Close</button></div>`);
+}
+
 export function settings(el) {
   const st = store.state;
   const voices = englishVoices();
@@ -108,6 +119,7 @@ export function settings(el) {
     </div></div>
     <div class="toggle-row">🔊 Read everything aloud<button class="switch ${st.settings.autoRead ? 'on' : ''}" data-toggle="autoRead" aria-label="Read aloud"></button></div>
     <div class="toggle-row">🎵 Sound effects<button class="switch ${st.settings.sound ? 'on' : ''}" data-toggle="sound" aria-label="Sound effects"></button></div>
+    <div class="toggle-row"><span>🏛️ Real photos of the landmarks<small class="note" style="display:block">Off shows the cartoon drawings instead. <button class="link photo-credits">Photo credits</button></small></span><button class="switch ${st.settings.photos ? 'on' : ''}" data-toggle="photos" aria-label="Real photos"></button></div>
     ${canSpeak() ? `<label>Reading voice<select class="voice"><option value="">Automatic</option>${voices.map(v => `<option value="${esc(v.name)}" ${st.settings.voice === v.name ? 'selected' : ''}>${esc(v.name)} (${esc(v.lang)})</option>`).join('')}</select></label>
     <button class="btn white test-voice">▶️ Test the voice</button>` : '<p class="note">This browser has no read-aloud voices.</p>'}
     <p class="note">Tip: on iPad, extra voices (including Indian, Australian and British English, and Hindi, Korean, Mandarin and Indonesian for the hello words) can be downloaded in Settings → Accessibility → Spoken Content → Voices.</p>
@@ -136,8 +148,10 @@ export function settings(el) {
     const k = b.dataset.toggle;
     store.update(s => { s.settings[k] = !s.settings[k]; });
     b.classList.toggle('on', store.state.settings[k]);
+    if (k === 'photos') showPhotos(store.state.settings.photos);
     sfx('tap');
   }));
+  $('.photo-credits', el).addEventListener('click', photoCredits);
   const v = $('.voice', el);
   if (v) v.addEventListener('change', () => store.update(s => { s.settings.voice = v.value; }));
   const tv = $('.test-voice', el);

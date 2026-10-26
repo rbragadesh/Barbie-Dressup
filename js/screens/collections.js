@@ -4,7 +4,7 @@ import { $, esc, shuffle } from '../util.js';
 import { store } from '../store.js';
 import { COUNTRIES, getCountry, displayName } from '../data/countries.js';
 import { renderDoll } from '../doll.js';
-import { renderScene } from '../scenes.js';
+import { sceneSVG, scenePhoto } from '../scenes.js';
 import { mixedMath, mathProblem, vocabSet, allWords, wordKey, flagQuiz, capitalQuiz, beliefsQuiz, nameQuiz } from '../learn.js';
 import { nameBook } from '../data/names.js';
 import { sfx } from '../audio.js';
@@ -137,16 +137,28 @@ export function quiz(el, params) {
 // ---------- Photo Album ----------
 
 export function photoSVG(p, uid) {
-  // Scene and doll combined into one picture (also used for saving as an image).
-  const doll = renderDoll(p.look, { uid, viewBox: '-50 -40 500 850' }).replace('<svg ', '<svg x="300" y="40" width="600" height="840" ');
-  return renderScene(p.scene).replace('</svg>', `${doll}</svg>`);
+  // Scene and doll combined into one picture (also used for saving as an image). In front
+  // of a real photo the doll stands to the right, like a holiday snap, so the landmark shows.
+  const x = scenePhoto(p.scene) ? 560 : 300;
+  const doll = renderDoll(p.look, { uid, viewBox: '-50 -40 500 850' }).replace('<svg ', `<svg x="${x}" y="40" width="600" height="840" `);
+  const shadow = x === 300 ? '' : `<ellipse cx="${x + 300}" cy="852" rx="90" ry="14" fill="#140a1e" opacity=".3"/>`;
+  return sceneSVG(p.scene, shadow + doll);
 }
 
+const dataURL = async src => {
+  const blob = await (await fetch(src)).blob();
+  return new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(r.result); r.onerror = rej; r.readAsDataURL(blob); });
+};
+
 async function savePicture(p) {
-  const svg = photoSVG(p, 'export').replace('preserveAspectRatio="xMidYMax slice"', 'width="1200" height="900"');
+  let svg = photoSVG(p, 'export').replace('preserveAspectRatio="xMidYMax slice"', 'width="1200" height="900"');
   const img = new Image();
-  const url = URL.createObjectURL(new Blob([svg], { type: 'image/svg+xml' }));
+  let url;
   try {
+    // An SVG drawn as an image can't load other files, so a landmark photo goes in as data.
+    const photo = svg.match(/<image href="(photos\/[^"]+)"/);
+    if (photo) svg = svg.replace(photo[1], await dataURL(photo[1]));
+    url = URL.createObjectURL(new Blob([svg], { type: 'image/svg+xml' }));
     await new Promise((res, rej) => { img.onload = res; img.onerror = rej; img.src = url; });
     const canvas = document.createElement('canvas');
     canvas.width = 1200;
@@ -165,7 +177,7 @@ async function savePicture(p) {
   } catch (e) {
     if (e && e.name !== 'AbortError') toast('Sorry, the picture could not be saved.');
   } finally {
-    URL.revokeObjectURL(url);
+    if (url) URL.revokeObjectURL(url);
   }
 }
 

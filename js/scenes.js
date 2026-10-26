@@ -1,8 +1,11 @@
 // Background scenes, drawn in a 1200 x 900 box. The doll stands in the middle, so
 // landmarks sit left or right of centre. Rendered with "slice" so the scene fills
-// both landscape and portrait stages.
+// both landscape and portrait stages. Landmarks with a real photo (js/data/photos.js)
+// show the photo instead, unless a grown-up chose drawings in settings.
 
 import { flower } from './svg.js';
+import { esc } from './util.js';
+import { PHOTOS } from './data/photos.js';
 
 const sky = (id, top, bottom) => `<defs><linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${top}"/><stop offset="1" stop-color="${bottom}"/></linearGradient></defs><rect width="1200" height="900" fill="url(#${id})"/>`;
 const cloud = (x, y, s = 1, o = 0.9) => `<g opacity="${o}" fill="#fff"><ellipse cx="${x}" cy="${y}" rx="${60 * s}" ry="${26 * s}"/><ellipse cx="${x - 40 * s}" cy="${y + 8 * s}" rx="${40 * s}" ry="${20 * s}"/><ellipse cx="${x + 44 * s}" cy="${y + 6 * s}" rx="${44 * s}" ry="${20 * s}"/></g>`;
@@ -275,6 +278,16 @@ const SCENES = {
       <path d="M0 640H1200V900H0Z" fill="#a5d6a7"/><path d="M0 660H1200" stroke="#81c784" stroke-width="10"/>`,
     floorY: 640,
   },
+  besakih: {
+    name: 'Pura Besakih, Bali', emoji: '🛕', visit: 'BALI',
+    draw: () => SCENES.BALI.draw(),
+    floorY: 640,
+  },
+  meiji: {
+    name: 'Meiji Jingu, Tokyo', emoji: '⛩️', visit: 'JP',
+    draw: () => SCENES.JP.draw(),
+    floorY: 640,
+  },
   runway: {
     name: 'Fashion show', emoji: '🎤',
     draw: () => `<rect width="1200" height="900" fill="#2a1b3d"/>${[150, 450, 750, 1050].map(x => `<path d="M${x} 0L${x - 150} 900H${x + 150}Z" fill="#fff59d" opacity=".08"/>`).join('')}
@@ -287,13 +300,41 @@ const SCENES = {
 };
 
 export const SCENE_IDS = Object.keys(SCENES);
-export const sceneInfo = id => SCENES[id] || SCENES.studio;
+export const sceneInfo = id => {
+  const s = SCENES[id] || SCENES.studio;
+  const p = scenePhoto(id);
+  return p && p.name ? { ...s, name: p.name } : s;
+};
+
+let photosOn = false;
+export const showPhotos = on => { photosOn = !!on; };
+export const scenePhoto = id => (photosOn && PHOTOS[id]) || null;
 
 export function renderScene(id, cls = 'scene') {
+  const p = scenePhoto(id);
+  if (p) {
+    return `<div class="${cls} photo-scene" role="img" aria-label="${esc(p.what)}" style="background-image:url('${p.src}');background-position:${p.pos[0]}% ${p.pos[1]}%">
+      <span class="photo-credit">📷 ${esc(p.author)} · ${esc(p.licence)}</span></div>`;
+  }
   const s = sceneInfo(id);
   return `<svg class="${cls}" viewBox="0 0 1200 900" preserveAspectRatio="xMidYMax slice" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">${s.draw()}</svg>`;
 }
 
+// The scene as a single SVG picture with `inner` (the doll) in front, for the album and
+// saved pictures. A photo is cropped like the stage crops it, with its credit on top.
+export function sceneSVG(id, inner = '') {
+  const p = scenePhoto(id);
+  if (!p) return renderScene(id).replace(/<\/svg>$/, `${inner}</svg>`);
+  const k = Math.max(1200 / p.w, 900 / p.h);
+  const w = p.w * k;
+  const h = p.h * k;
+  return `<svg class="scene" viewBox="0 0 1200 900" preserveAspectRatio="xMidYMax slice" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <image href="${p.src}" x="${((1200 - w) * p.pos[0] / 100).toFixed(1)}" y="${((900 - h) * p.pos[1] / 100).toFixed(1)}" width="${w.toFixed(1)}" height="${h.toFixed(1)}"/>${inner}
+    <text x="1188" y="888" text-anchor="end" font-family="sans-serif" font-size="18" font-weight="700" fill="#fff" stroke="#000" stroke-opacity=".45" stroke-width="3" paint-order="stroke">Photo: ${esc(p.author)}, ${esc(p.licence)}, Wikimedia Commons</text></svg>`;
+}
+
 export function sceneThumb(id) {
+  const p = scenePhoto(id);
+  if (p) return `<svg viewBox="0 0 800 700" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg"><image href="${p.src}" width="800" height="700" preserveAspectRatio="xMidYMid slice"/></svg>`;
   return `<svg viewBox="200 100 800 700" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">${sceneInfo(id).draw()}</svg>`;
 }

@@ -6,7 +6,7 @@ import path from 'node:path';
 const walk = dir => fs.readdirSync(dir, { withFileTypes: true }).flatMap(d => d.isDirectory() ? walk(path.join(dir, d.name)) : [path.join(dir, d.name)]);
 const files = [
   './', 'index.html', 'manifest.webmanifest',
-  ...walk('icons'), ...walk('css'), ...walk('js'),
+  ...walk('icons'), ...walk('css'), ...walk('js'), ...walk('photos'),
 ].map(f => f.split(path.sep).join('/')).sort((a, b) => (a === './' ? -1 : b === './' ? 1 : a.localeCompare(b)));
 
 const version = new Date().toISOString().slice(0, 16).replace(/[-:T]/g, '');

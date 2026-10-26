@@ -13,6 +13,7 @@ import { mathSet, flightProblem, vocabSet, countryQuiz, wordKey, allWords } from
 import { sfx, narrate } from '../audio.js';
 import { go, topbar, stageHTML, updateDoll, setScene, bubble, setWeather, runQuestions, resultHTML, modal, closeModal, confetti, toast, sayBtn, refreshStars } from '../ui.js';
 import { mapSVG, VIEWS, project, regionOf } from './map.js';
+import { scenePhoto } from '../scenes.js';
 
 export const STEPS = [
   { id: 'fly', e: '✈️', name: 'Fly' },
@@ -26,6 +27,12 @@ export const STEPS = [
 
 const VISIT_STEP = { id: 'visit', e: '🕊️', name: 'Sacred place' };
 // The sacred-place step only appears for destinations that have one.
+// A real photo of the place, shown whole (the stage background is cropped and has the doll in front).
+const postcard = id => {
+  const p = scenePhoto(id);
+  return p ? `<figure class="postcard"><img src="${p.src}" alt="${esc(p.what)}"><figcaption><b>📷 A real photo: ${esc(p.what)}</b><span>Photo: ${esc(p.author)} · ${esc(p.licence)}</span></figcaption></figure>` : '';
+};
+
 export const stepsFor = c => (c.worship ? [...STEPS.slice(0, 5), VISIT_STEP, ...STEPS.slice(5)] : STEPS);
 
 export default function tripScreen(el, params) {
@@ -117,6 +124,7 @@ export default function tripScreen(el, params) {
     const t = c.thanks;
     const extra = (c.extraGreetings || []).map(x => `<div class="fact-box"><span class="e">👋</span><div style="flex:1"><div class="k">Hello in ${esc(x.label)}</div><div class="v">${esc(x.text)} ${x.native && x.native !== x.text ? `<span class="sub">${esc(x.native)}</span>` : ''}</div>${x.say ? `<div class="sub">say: ${esc(x.say)}</div>` : ''}</div>${sayBtn(x.native || x.text, x.lang, x.say || x.text)}</div>`).join('');
     main.innerHTML = `<div class="country-head"><span class="flag">${c.flag}</span><div><h2>${esc(c.name)}</h2><p>${esc(c.story.title)}${c.isIsland ? ` · an island in ${esc(c.countryName)}` : ''}</p></div></div>
+      ${postcard(c.id)}
       <div class="fact-grid">
         <div class="fact-box"><span class="e">🏙️</span><div style="flex:1"><div class="k">${c.isIsland ? 'Capital of Bali' : 'Capital city'}</div><div class="v">${esc(c.capital)}</div>${c.nationalCapital ? `<div class="sub">Indonesia's capital: ${esc(c.nationalCapital)}</div>` : ''}${c.id === 'SG' ? '<div class="sub">A city that is also a country!</div>' : ''}</div>${sayBtn(c.nationalCapital ? `Bali's capital is ${c.capital}. Indonesia's capital is ${c.nationalCapital}.` : `The capital city of ${displayName(c)} is ${c.capital}.`)}</div>
         <div class="fact-box"><span class="e">💰</span><div style="flex:1"><div class="k">Money</div><div class="v">${esc(c.currency.name)}</div><div class="sub">Symbol: ${esc(c.currency.symbol)}</div></div>${sayBtn(`In ${displayName(c)}, people pay with the ${c.currency.name}.`)}</div>
@@ -203,6 +211,7 @@ export default function tripScreen(el, params) {
     const w = c.worship;
     const rels = w.religions.map(getReligion);
     main.innerHTML = `<div class="country-head"><span class="flag">${rels[0].emoji}</span><div><h2>${esc(w.place)}</h2><p>${esc(w.where)}</p></div></div>
+      ${postcard(w.scene)}
       <div class="memory">🕊️ <span style="flex:1">${esc(w.intro)}</span>${sayBtn(w.intro)}</div>
       <div class="chip-row">${rels.map(r => `<button class="chip religion-chip" data-rel="${r.id}"><span class="e">${r.emoji}</span>${esc(r.name)}</button>`).join('')}</div>
       <div class="vbox"></div>`;

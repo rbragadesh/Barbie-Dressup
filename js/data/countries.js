@@ -333,7 +333,7 @@ export const COUNTRIES = [
     ],
     funQ: { q: 'What happens in Bali on Nyepi, the Day of Silence?', a: 'Everyone stays quiet', wrong: ['A big fireworks show', 'It snows', 'Everyone sings'] },
     worship: {
-      place: 'Pura Besakih', where: 'Mount Agung, Bali', religions: ['hinduism'], scene: 'BALI',
+      place: 'Pura Besakih', where: 'Mount Agung, Bali', religions: ['hinduism'], scene: 'besakih',
       intro: 'Pura Besakih, the "Mother Temple", sits high on the slopes of Mount Agung. It is the biggest and holiest Hindu temple on Bali.',
       dress: [V.sarong, V.shoulders],
       game: { type: 'order', steps: [
@@ -387,7 +387,7 @@ export const COUNTRIES = [
     ],
     funQ: { q: 'What is hanami?', a: 'A picnic under cherry blossoms', wrong: ['A kind of sushi', 'A dance', 'A train'] },
     worship: {
-      place: 'Meiji Jingu', where: 'Tokyo, Japan', religions: ['shinto'], scene: 'JP',
+      place: 'Meiji Jingu', where: 'Tokyo, Japan', religions: ['shinto'], scene: 'meiji',
       intro: 'Meiji Jingu is a Shinto shrine inside a forest of about 100,000 trees, right in the middle of busy Tokyo.',
       dress: null, note: NO_RULES,
       game: { type: 'order', steps: [

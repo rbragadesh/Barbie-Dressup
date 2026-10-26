@@ -16,7 +16,8 @@ tracking) that installs on the iPad home screen and works offline.
 **Dressing room**
 - The doll starts out looking like the player (crown braids, kajal, a little black bindi,
   a gap-tooth grin, plum sequin jumpsuit with a bow bolero and Mary Janes). The 👧 **Me**
-  button switches back to that look any time. No photos are stored: the look is drawn.
+  button switches back to that look any time. The look is drawn. Optionally, a grown-up
+  can give the doll a **photo face** (see Grown-up settings), which stays on that iPad only.
 - 10 hair styles × 14 colours (including rainbow, ombré and mermaid)
 - 6 skin tones, 7 eye colours
 - Makeup: lipstick, eyeshadow, blush, lashes, bindi, face paint, glitter
@@ -32,13 +33,17 @@ tracking) that installs on the iPad home screen and works offline.
   "crimson"…), patterned (dots, stripes, flowers, paisley…) and given a trim colour
 - Seasons (spring, summer, monsoon, autumn, winter) with falling snow, rain, petals or
   leaves; the doll shivers and asks for a coat if she's dressed too lightly for winter
-- 15 backgrounds (country ones unlock when you earn that stamp), surprise outfits,
-  and a photo album that can save pictures to the iPad's Photos
+- **Real photos** of every destination and sacred place as backgrounds (the Taj Mahal,
+  Gyeongbokgung, Taipei 101, the Golden Temple…), or the cartoon drawings if you prefer.
+  Country backgrounds unlock when you earn that stamp. Surprise outfits, and a photo album
+  that can save pictures to the iPad's Photos
 
 **World Tour** (one trip per destination)
 1. ✈️ **Fly**: an animated flight on a real world map, with a flight-time / clock question
-2. 🛬 **Arrive**: capital city, money, languages, weather, flag, and how to say *hello*
-   and *thank you* (read aloud in the local language where the iPad has a voice)
+2. 🛬 **Arrive**: a real photo postcard of the landmark, the capital city, money,
+   languages, weather, flag, and how to say *hello* and *thank you* (read aloud in the
+   local language where the iPad has a voice). Plus **her own name** written the local way
+   (अनन्या, 아난야, 阿南雅, アナニャ, อนัญญา, أنانيا…) or a greeting just for her.
 3. 👗 **Dress up**: a dressing challenge (wear a hanbok to get into the palace for free,
    hold a lantern in Taipei, no coats in hot Singapore…)
 4. 🛍️ **Market**: shopping maths in the local currency (rupees, won, NT dollars, rupiah…)
@@ -53,6 +58,12 @@ tracking) that installs on the iPad home screen and works offline.
    "what do visitors do?" game: putting the steps in order, or matching places to faiths.
 7. 💡 **Fun facts**: "Did you know?" cards
 8. 🛂 **Passport check**: a quiz; pass to earn the stamp and unlock a surprise item
+
+**My name around the world**: her name in Hindi, Tamil, Telugu, Kannada, Bengali, Korean,
+Chinese, Japanese, Thai and Arabic letters, with how to say it, greetings in English,
+Spanish, French, Portuguese, Indonesian and Malay, and a "which language is this?" quiz.
+Scripts only appear for names listed in `js/data/names.js` (a program can't reliably
+transliterate any name); other names get the greetings.
 
 **World Beliefs book**: Hinduism, Islam, Christianity, Buddhism, Sikhism, Judaism, Shinto,
 and Taoism & folk religion, each with followers, place of worship, holy book, festivals,
@@ -78,7 +89,14 @@ is on by default.
 
 Tap ⚙️ on the home screen and **press and hold** the button (a gate a child is
 unlikely to pass by accident). You can change names, the maths level, read-aloud,
-sound effects and the voice, unlock all reward items, or reset progress.
+sound effects and the voice, switch between real photos and drawings of the landmarks
+(with photo credits), unlock all reward items, or reset progress.
+
+**Photo face (optional).** Choose a photo of your child, pinch and drag to line the face up
+with the doll's face shape, and the doll wears that face with the drawn hair on top. The
+cropped picture is stored only in that iPad's browser storage: it is never uploaded, never
+part of the website or the repository, and "Remove" deletes it. The drawn face is one tap
+away in the Face tab.
 
 | Maths level | Covers |
 |---|---|
@@ -125,13 +143,15 @@ index.html, manifest.webmanifest, sw.js   app shell, install info, offline cache
 css/styles.css                            all styling (landscape + portrait iPad)
 js/doll.js        the SVG doll: body, face, makeup, hair, nails
 js/items.js       the wardrobe: every item draws itself in layers
-js/scenes.js      background illustrations
+js/scenes.js      background illustrations, or the real photo where there is one
+js/data/photos.js landmark photo credits and framing; the images are in photos/
+js/data/names.js  the player's name in other scripts, and greetings
 js/data/countries.js   destinations: facts, words, stories, challenges, shop items
 js/data/worldmap.js    generated map shapes (Natural Earth, public domain)
 js/learn.js       maths, vocabulary and quiz question generators
 js/ui.js          navigation, stage, weather, modals, question runner
 js/screens/*      home, studio, map, trip, passport/words/games/album
-scripts/          icon, offline-cache and map generators
+scripts/          icon, offline-cache, map and photo-fetch scripts
 tests/app.test.js node:test suite
 ```
 
@@ -156,6 +176,15 @@ tests/app.test.js node:test suite
   province of Indonesia (capital Denpasar; national capital Jakarta). The map uses
   Natural Earth data, with India drawn from Natural Earth's India point-of-view
   boundary.
+- **Photos.** The landmark photos are from Wikimedia Commons under CC BY, CC BY-SA or
+  CC0/public-domain terms, resized for the iPad. Each author and licence is shown on the
+  stage, under the trip postcards and in Settings → Photo credits, and saved pictures carry
+  the credit too. `scripts/photos.json` lists the exact files. Wikimedia blocks busy cloud
+  servers, so `scripts/fetch-photos.py` is run by the manual "Fetch landmark photos" GitHub
+  workflow, which uploads the photos as an artifact.
+- **Her name is on the website.** The scripts for "Ananyaa" are in `js/data/names.js`, so
+  anyone who opens the published site could see that name (only the first name, and
+  nothing else about her). Remove the entry if you'd rather not.
 - **Voices.** Read-aloud uses the iPad's built-in speech. If a language voice isn't
   installed, the app reads a phonetic English spelling instead (e.g. "nuh-muh-stay").
 - **Sound** is synthesised in the browser; the iPad's silent switch / volume still applies.

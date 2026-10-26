@@ -23,7 +23,7 @@ const fresh = () => ({
   words: {},        // 'IN:festival' -> true once learned
   album: [],        // [{ look, scene, season, at }]
   unlocked: [],     // reward item ids
-  settings: { level: 1, autoRead: true, sound: true, voice: '' },
+  settings: { level: 1, autoRead: true, sound: true, voice: '', photos: true },
   onboarded: false,
   lastStop: null,   // last country flown to (start of the next flight)
   seenMapIntro: false,
