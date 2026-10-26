@@ -1,27 +1,141 @@
 {
-  "IN": { "files": ["Taj Mahal (Edited).jpeg"] },
-  "KR": { "files": ["Gyeonghoeru (Royal Banquet Hall) at Gyeongbokgung Palace, Seoul.jpg"] },
-  "TW": { "files": ["Taipei Taiwan Taipei-101-Tower-01.jpg"] },
-  "SG": { "files": ["Marina Bay Sands (I).jpg"] },
-  "BALI": { "files": ["Pura Ulun Danu Bratan, 2022.jpg"], "search": "Jatiluwih rice terraces filetype:bitmap", "limit": 6 },
-  "JP": { "files": ["View of Mount Fuji from Ōwakudani 20211202.jpg"] },
-  "FR": { "files": ["Paris - The Eiffel Tower in spring - 2307.jpg"] },
-  "EG": { "files": ["All Gizah Pyramids.jpg"] },
-  "AU": { "files": ["Sydney Opera House 2026.jpg"] },
-  "BR": { "files": ["Pão de Açucar - Sugarloaf Mountain - Zuckerhut - 2022.jpg"] },
-  "US": { "files": ["Statue of liberty front.jpg"] },
-  "UK": { "files": ["Palace of Westminster, London - Feb 2007.jpg", "Elizabeth Tower and the north front of the Palace of Westminster, London.jpg"] },
-  "ES": { "files": ["SF maig 2 cropped.jpg"], "search": "Sagrada Família Barcelona exterior filetype:bitmap", "limit": 6 },
-  "AE": { "files": ["Burj Khalifa (worlds tallest building) and the Dubai skyline (25781049892).jpg"], "search": "Burj Khalifa Downtown Dubai skyline filetype:bitmap", "limit": 6 },
-  "TH": { "files": ["วัดพระศรีรัตนศาสดาราม วัดพระแก้ว กรุงเทพมหานคร - Wat Phra Kaew, Temple of Emerald Buddha, Bangkok, Thailand.jpg"] },
-  "gurdwara": { "files": ["The Golden Temple of Amrithsar 7.jpg"] },
-  "jogyesa": { "files": ["Jogyesa Temple (1509839597).jpg"] },
-  "longshan": { "files": ["Bangka Lungshan Temple 07.23.jpg"] },
-  "harmony": { "files": ["Gopuram - Sri Mariamman Temple Singapore (2023) - img 01.jpg"] },
-  "mosque": { "search": "Sheikh Zayed Grand Mosque Abu Dhabi filetype:bitmap", "limit": 8 },
-  "cairo": { "files": ["Kairo Hanging Church BW 1.jpg"] },
-  "synagogue": { "files": ["Central Synagogue, Lexington Avenue NYC.jpg"] },
-  "abbey": { "files": ["Westminster Abbey, Westminster.jpg"] },
-  "besakih": { "files": ["Besakih Bali Indonesia Pura-Besakih-02.jpg"] },
-  "meiji": { "files": ["Meiji Jingu 2023-3.jpg"] }
+ "IN": {
+  "files": [
+   "Taj Mahal (Edited).jpeg"
+  ]
+ },
+ "KR": {
+  "files": [
+   "Gyeonghoeru (Royal Banquet Hall) at Gyeongbokgung Palace, Seoul.jpg"
+  ]
+ },
+ "TW": {
+  "files": [
+   "Taipei Taiwan Taipei-101-Tower-01.jpg"
+  ]
+ },
+ "SG": {
+  "files": [
+   "Marina Bay Sands (I).jpg"
+  ]
+ },
+ "BALI": {
+  "files": [
+   "Pura Ulun Danu Bratan, 2022.jpg"
+  ],
+  "search": "Jatiluwih rice terraces filetype:bitmap",
+  "limit": 6
+ },
+ "JP": {
+  "files": [
+   "View of Mount Fuji from Ōwakudani 20211202.jpg"
+  ]
+ },
+ "FR": {
+  "files": [
+   "Paris - The Eiffel Tower in spring - 2307.jpg"
+  ]
+ },
+ "EG": {
+  "files": [
+   "All Gizah Pyramids.jpg"
+  ]
+ },
+ "AU": {
+  "files": [
+   "Sydney Opera House 2026.jpg"
+  ]
+ },
+ "BR": {
+  "files": [
+   "Pão de Açucar - Sugarloaf Mountain - Zuckerhut - 2022.jpg"
+  ]
+ },
+ "US": {
+  "files": [
+   "Statue of liberty front.jpg"
+  ]
+ },
+ "UK": {
+  "files": [
+   "Palace of Westminster, London - Feb 2007.jpg",
+   "Elizabeth Tower and the north front of the Palace of Westminster, London.jpg"
+  ]
+ },
+ "ES": {
+  "files": [
+   "SF maig 2 cropped.jpg"
+  ],
+  "search": "Sagrada Família Barcelona exterior filetype:bitmap",
+  "limit": 6
+ },
+ "AE": {
+  "files": [
+   "Burj Khalifa (worlds tallest building) and the Dubai skyline (25781049892).jpg"
+  ],
+  "search": "Burj Khalifa Downtown Dubai skyline filetype:bitmap",
+  "limit": 6
+ },
+ "TH": {
+  "files": [
+   "วัดพระศรีรัตนศาสดาราม วัดพระแก้ว กรุงเทพมหานคร - Wat Phra Kaew, Temple of Emerald Buddha, Bangkok, Thailand.jpg"
+  ]
+ },
+ "gurdwara": {
+  "files": [
+   "The Golden Temple of Amrithsar 7.jpg"
+  ]
+ },
+ "jogyesa": {
+  "files": [
+   "Jogyesa Temple (1509839597).jpg"
+  ]
+ },
+ "longshan": {
+  "files": [
+   "Bangka Lungshan Temple 07.23.jpg"
+  ]
+ },
+ "harmony": {
+  "files": [
+   "Gopuram - Sri Mariamman Temple Singapore (2023) - img 01.jpg"
+  ]
+ },
+ "mosque": {
+  "search": "\"Sheikh Zayed\" mosque domes exterior filetype:bitmap",
+  "limit": 8
+ },
+ "cairo": {
+  "files": [
+   "Kairo Hanging Church BW 1.jpg"
+  ]
+ },
+ "synagogue": {
+  "files": [
+   "Central Synagogue, Lexington Avenue NYC.jpg"
+  ]
+ },
+ "abbey": {
+  "files": [
+   "Westminster Abbey, Westminster.jpg"
+  ]
+ },
+ "besakih": {
+  "files": [
+   "Besakih Bali Indonesia Pura-Besakih-02.jpg"
+  ]
+ },
+ "meiji": {
+  "files": [
+   "Meiji Jingu 2023-3.jpg"
+  ]
+ },
+ "mosque_b": {
+  "search": "\"Sheikh Zayed Grand Mosque\" incategory:\"Featured pictures on Wikimedia Commons\"",
+  "limit": 6
+ },
+ "mosque_c": {
+  "search": "\"Sheikh Zayed Grand Mosque\" courtyard filetype:bitmap",
+  "limit": 8
+ }
 }
