@@ -1,17 +1,18 @@
 #!/usr/bin/env python3
-"""Fetch candidate landmark photos and their licence details from Wikimedia Commons.
+"""Fetch landmark photos and their licence details from Wikimedia Commons.
 
-For each entry in scripts/photos.json this takes the Wikipedia article's lead image
-(Wikipedia only reports freely licensed lead images) plus a few matches from
-Commons "Quality images", and saves 960px-wide copies with a meta.json listing
-each file's author, licence and source page. Only CC0, public-domain, CC BY and
-CC BY-SA files are kept.
+Each entry in scripts/photos.json can name exact Commons "files", a Wikipedia
+"article" whose lead image to take, and a Commons "search" (used as written, with
+up to "limit" results). The photos in the game are the pinned "files"; the other
+two are for finding candidates. Only CC0, public-domain, CC BY and CC BY-SA files
+are saved, as WIDTH-pixel copies (default 1920) with a meta.json listing each
+file's author, licence and source page.
 
 Wikimedia rate-limits busy shared cloud addresses, so this normally runs in the
 "Fetch landmark photos" GitHub workflow, which uploads the result as an artifact.
 The chosen photos are then resized into photos/ and credited in js/data/photos.js.
 
-    python3 scripts/fetch-photos.py OUT_DIR
+    python3 scripts/fetch-photos.py OUT_DIR [WIDTH]
 """
 import html
 import json
@@ -24,8 +25,6 @@ import urllib.parse
 import urllib.request
 
 UA = 'DressUpWorldTour/1.0 (https://github.com/rbragadesh/Barbie-Dressup; personal educational game)'
-WIDTH = 960
-ALTERNATIVES = 3
 FREE = re.compile(r'^(cc0|cc[ -]by(-sa)?[ -]?\d|public domain|pd\b|pd-)', re.I)
 
 
@@ -59,27 +58,32 @@ def text(value):
 
 def main():
     out = sys.argv[1] if len(sys.argv) > 1 else 'photos-raw'
+    width = int(sys.argv[2]) if len(sys.argv) > 2 else 1920
     os.makedirs(out, exist_ok=True)
     wanted = json.load(open(os.path.join(os.path.dirname(__file__), 'photos.json')))
+    files = {key: [('chosen', f) for f in w.get('files', [])] for key, w in wanted.items()}
 
-    # 1. Lead images of the Wikipedia articles.
-    pages = api('en.wikipedia.org', action='query', prop='pageimages', piprop='name', redirects=1,
-                titles='|'.join(w['article'] for w in wanted.values()))['query']
-    alias = {n['from']: n['to'] for n in pages.get('normalized', []) + pages.get('redirects', [])}
-    lead = {p['title']: p.get('pageimage') for p in pages['pages']}
-    files = {}
-    for key, w in wanted.items():
-        title = w['article']
-        while title in alias:
-            title = alias[title]
-        files[key] = [('lead', lead[title])] if lead.get(title) else []
+    # 1. Lead images of Wikipedia articles.
+    articles = {key: w['article'] for key, w in wanted.items() if w.get('article')}
+    if articles:
+        pages = api('en.wikipedia.org', action='query', prop='pageimages', piprop='name', redirects=1,
+                    titles='|'.join(articles.values()))['query']
+        alias = {n['from']: n['to'] for n in pages.get('normalized', []) + pages.get('redirects', [])}
+        lead = {p['title']: p.get('pageimage') for p in pages['pages']}
+        for key, title in articles.items():
+            while title in alias:
+                title = alias[title]
+            if lead.get(title):
+                files[key].append(('lead', lead[title]))
 
-    # 2. A few well-reviewed alternatives from Commons.
+    # 2. Commons searches for more candidates.
     for key, w in wanted.items():
-        found = api('commons.wikimedia.org', action='query', list='search', srnamespace=6, srlimit=ALTERNATIVES,
-                    srsearch=f'{w["search"]} incategory:Quality_images filetype:bitmap')['query']['search']
-        have = {f for _, f in files[key]}
-        files[key] += [('quality', r['title'].removeprefix('File:')) for r in found if r['title'].removeprefix('File:') not in have]
+        if w.get('search'):
+            found = api('commons.wikimedia.org', action='query', list='search', srnamespace=6,
+                        srlimit=w.get('limit', 3), srsearch=w['search'])['query']['search']
+            files[key] += [('search', r['title'].removeprefix('File:')) for r in found]
+        seen = set()
+        files[key] = [(k, f) for k, f in files[key] if not (f.replace('_', ' ') in seen or seen.add(f.replace('_', ' ')))]
         print(key, [f for _, f in files[key]], flush=True)
 
     # 3. Licence details and thumbnail addresses.
@@ -87,7 +91,7 @@ def main():
     info = {}
     for i in range(0, len(names), 40):
         q = api('commons.wikimedia.org', action='query', prop='imageinfo', iiprop='url|extmetadata|size|mime',
-                iiurlwidth=WIDTH, titles='|'.join('File:' + n for n in names[i:i + 40]))['query']
+                iiurlwidth=width, titles='|'.join('File:' + n for n in names[i:i + 40]))['query']
         for p in q['pages']:
             if p.get('imageinfo'):
                 info[p['title'].removeprefix('File:')] = p['imageinfo'][0]
