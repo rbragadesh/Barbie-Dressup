@@ -821,3 +821,33 @@ button {
 @media (max-width: 1100px) and (orientation: landscape) {
   .scr-home .tiles .tile small { display: none; }
 }
+
+/* ---------- Names around the world ---------- */
+.name-badge { position: absolute; z-index: 5; top: 12px; right: 12px; background: rgba(255, 255, 255, .94); border-radius: 18px; padding: 6px 12px; box-shadow: 0 4px 12px rgba(0, 0, 0, .15); display: flex; flex-direction: column; align-items: center; max-width: 46%; }
+.name-badge b { font-size: 1.6rem; line-height: 1.2; color: var(--purple-d); }
+.name-badge small { font-size: .7rem; font-weight: 800; color: var(--ink-soft); }
+.scr-trip .bubble { right: 12px; }
+.name-v { font-size: 1.6rem !important; color: var(--purple-d); }
+.name-script { font-size: 3.6rem; font-weight: 800; color: var(--purple-d); background: #fff; border-radius: 20px; padding: 10px 28px; box-shadow: var(--shadow); }
+.name-banner { display: flex; align-items: center; justify-content: center; gap: 10px; background: linear-gradient(90deg, #fff6c7, #ffe3f1); border-radius: 18px; padding: 8px 14px; box-shadow: var(--shadow); font-weight: 800; }
+.name-banner .nb-label { color: var(--ink-soft); font-size: .85rem; }
+.name-banner .nb-name { font-size: 1.5rem; color: var(--purple-d); min-width: 4em; text-align: center; }
+.name-banner .nb-name.pop { animation: pop-in .35s; }
+.nm-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px; }
+.nm-card { background: #fff; border-radius: 22px; box-shadow: var(--shadow); padding: 12px 14px; display: flex; flex-direction: column; gap: 8px; }
+.nm-head { display: flex; align-items: center; gap: 10px; font-size: 1.1rem; }
+.nm-head .flag { font-size: 2rem; }
+.nm-row { display: grid; grid-template-columns: 1fr auto; grid-template-areas: "s b" "l b"; align-items: center; column-gap: 10px; background: #faf6ff; border-radius: 14px; padding: 6px 10px; }
+.nm-row .say-btn { grid-area: b; }
+.nm-script, .nm-greet { grid-area: s; font-size: 1.9rem; font-weight: 800; color: var(--purple-d); line-height: 1.25; }
+.nm-greet { font-size: 1.3rem; }
+.nm-lang { grid-area: l; font-size: .8rem; font-weight: 800; color: var(--ink-soft); }
+.passport-names { text-align: center; margin: -4px 0 12px; font-size: 1.2rem; color: #ffe8a3; letter-spacing: .04em; }
+
+/* Photo face (grown-up settings) */
+.face-photo-box { background: #faf6ff; border-radius: 18px; padding: 12px 14px; display: flex; flex-direction: column; gap: 6px; }
+.face-row { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.face-prev { width: 84px; height: 100px; border-radius: 50% / 45%; overflow: hidden; background: #fff; display: grid; place-items: center; font-size: 2.4rem; box-shadow: var(--shadow); }
+.face-prev img { width: 100%; height: 100%; object-fit: cover; }
+.crop-wrap { display: flex; justify-content: center; }
+.crop { width: min(358px, 80vw); height: auto; touch-action: none; border-radius: 18px; background: #eee; }

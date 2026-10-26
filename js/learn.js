@@ -5,6 +5,7 @@
 import { rand, pick, shuffle, fmtNum, esc } from './util.js';
 import { COUNTRIES, getCountry, displayName } from './data/countries.js';
 import { RELIGIONS } from './data/religions.js';
+import { nameBook } from './data/names.js';
 
 // ---------- Money ----------
 
@@ -445,4 +446,27 @@ export function beliefsQuiz(n = 6) {
     explain: 'Taking your shoes off keeps the special place clean and shows respect.',
   });
   return shuffle(qs).slice(0, n);
+}
+
+// ---------- Name quiz: which language is this? ----------
+
+
+export function nameQuiz(name, n = 6) {
+  const book = nameBook(name);
+  if (!book) return [];
+  const seen = new Map();
+  for (const forms of Object.values(book.forms)) {
+    for (const f of forms) {
+      if (/^[A-Za-z\s]+$/.test(f.script) || seen.has(f.script)) continue;
+      seen.set(f.script, { ...f, lang: f.lang.replace(/\s*\(.*\)/, '').replace('Mandarin', 'Chinese') });
+    }
+  }
+  const all = [...seen.values()];
+  const langs = all.map(f => f.lang);
+  return shuffle(all).slice(0, n).map(f => ({
+    kind: 'quiz', topic: 'My name', prompt: `This is your name, ${name}! Which language is it written in?`,
+    visual: `<div class="name-script">${esc(f.script)}</div>`,
+    choices: shuffle(uniqueChoices(f.lang, langs)).map(x => ({ label: x, value: x })), answer: f.lang,
+    explain: `That's ${name} in ${f.lang}: ${f.script}${f.say ? ` (say "${f.say}")` : ''}.`,
+  }));
 }

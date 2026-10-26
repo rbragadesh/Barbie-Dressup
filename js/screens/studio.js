@@ -1,7 +1,7 @@
 // Dress-Up Studio: free play, or a country's dressing challenge when params.challenge is set.
 
 import { $, esc, pick, shade } from '../util.js';
-import { HAIR_STYLES, HAIR_COLORS, SKIN_TONES, EYE_COLORS, PATTERNS, MY_LOOK, renderItemThumb, renderHairThumb, patternSwatch, normalizeLook } from '../doll.js';
+import { HAIR_STYLES, HAIR_COLORS, SKIN_TONES, EYE_COLORS, PATTERNS, MY_LOOK, hasFacePhoto, renderItemThumb, renderHairThumb, patternSwatch, normalizeLook } from '../doll.js';
 import { itemsForSlot, getItem, freshWorn, thumbBox } from '../items.js';
 import { store, isUnlocked, isOwned, trip, dollName } from '../store.js';
 import { RESPECT_LINE } from '../data/religions.js';
@@ -363,6 +363,7 @@ export default function studio(el, params = {}) {
       h += `<div class="sec-title">🎨 Hair colour</div><div class="chip-row">${HAIR_COLORS.map(c => `<button class="swatch ${L.hairColor === c.id ? 'on' : ''}" style="background:${c.grad ? `linear-gradient(${c.grad.join(',')})` : c.c}" data-haircolor="${c.id}" data-name="${c.name}" aria-label="${c.name}"></button>`).join('')}</div>`;
     } else if (tab === 'face') {
       const m = L.makeup;
+      if (hasFacePhoto()) h += `<div class="sec-title">📷 Face</div><div class="chip-row">${chips([['photo', 'Photo face', '📷'], ['drawn', 'Drawn face', '✏️']], L.photoFace ? 'photo' : 'drawn', 'data-faceuse')}</div>${L.photoFace ? '<p class="note">Makeup and smiles show on the drawn face. Switch to ✏️ Drawn face to try them.</p>' : ''}`;
       h += `<div class="sec-title">🙂 Skin</div><div class="chip-row">${SKIN_TONES.map(s => `<button class="swatch ${L.skin === s.id ? 'on' : ''}" style="background:${s.c}" data-skin="${s.id}" data-name="${s.name}" aria-label="${s.name}"></button>`).join('')}</div>`;
       h += `<div class="sec-title">👀 Eyes</div><div class="chip-row">${EYE_COLORS.map(s => `<button class="swatch ${L.eyes === s.id ? 'on' : ''}" style="background:${s.c}" data-eyes="${s.id}" data-name="${s.name}" aria-label="${s.name}"></button>`).join('')}</div>`;
       h += `<div class="sec-title">💋 Lipstick</div><div class="chip-row">${swatches(LIPS, m.lips, 'data-lips')}</div>`;
@@ -438,6 +439,7 @@ export default function studio(el, params = {}) {
     else if (d.toggle === 'glitter') L.makeup.glitter = !L.makeup.glitter;
     else if (d.toggle === 'kajal') L.makeup.kajal = !L.makeup.kajal;
     else if (d.smile) L.makeup.smile = d.smile;
+    else if (d.faceuse) L.photoFace = d.faceuse === 'photo';
     else if (d.paintmode) paintAll = d.paintmode === 'all';
     else if ('nailcolor' in d) { nailColor = d.nailcolor || null; if (paintAll) L.nails = [0, 1, 2, 3, 4].map(() => nailColor); }
     else if (d.nailart) L.nailArt = d.nailart;

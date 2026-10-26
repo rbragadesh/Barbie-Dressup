@@ -2,6 +2,7 @@
 
 import { $, esc, shuffle } from '../util.js';
 import { getReligion, RESPECT_LINE } from '../data/religions.js';
+import { nameFor } from '../data/names.js';
 import { orderGame, matchGame, religionModal } from './minigames.js';
 import { store, trip, isUnlocked } from '../store.js';
 import { getCountry, displayName } from '../data/countries.js';
@@ -41,6 +42,9 @@ export default function tripScreen(el, params) {
   const stage = $('.stage', el);
   const main = $('.trip-main', el);
   setWeather(stage, c.season);
+  const myName = nameFor(store.state.kidName, c.id);
+  const badgeForm = myName.forms.find(f => !/^[A-Za-z\s]+$/.test(f.script));
+  if (badgeForm) stage.insertAdjacentHTML('beforeend', `<button class="name-badge" data-say="${esc(badgeForm.script)}" data-lang="${badgeForm.tts}" data-fallback="${esc(badgeForm.say || store.state.kidName)}"><b>${esc(badgeForm.script)}</b><small>your name in ${esc(badgeForm.lang)} 🔊</small></button>`);
 
   const markDone = id => store.update(() => { T.done[id] = true; });
   const goStep = id => { step = id; sfx('tap'); render(); };
@@ -121,6 +125,8 @@ export default function tripScreen(el, params) {
         <div class="fact-box"><span class="e">👋</span><div style="flex:1"><div class="k">Say hello</div><div class="v">${esc(g.text)} <span class="sub">${esc(g.native !== g.text ? g.native : '')}</span></div><div class="sub">say: ${esc(g.say || g.text)} · ${esc(g.meaning)}</div></div>${sayBtn(g.native, g.lang, g.say || g.text)}</div>
         <div class="fact-box"><span class="e">🙏</span><div style="flex:1"><div class="k">Say thank you</div><div class="v">${esc(t.text)} <span class="sub">${esc(t.native !== t.text ? t.native : '')}</span></div>${t.say ? `<div class="sub">say: ${esc(t.say)}</div>` : ''}</div>${sayBtn(t.native, t.lang, t.say || t.text)}</div>
         ${extra}
+        ${myName.forms.map(f => `<div class="fact-box name-box"><span class="e">✍️</span><div style="flex:1"><div class="k">Your name in ${esc(f.lang)}</div><div class="v name-v">${esc(f.script)}</div>${f.say ? `<div class="sub">say: ${esc(f.say)}</div>` : ''}${f.note ? `<div class="sub">${esc(f.note)}</div>` : ''}</div>${sayBtn(f.script, f.tts, f.say || store.state.kidName)}</div>`).join('')}
+        ${myName.greeting ? `<div class="fact-box name-box"><span class="e">💬</span><div style="flex:1"><div class="k">${esc(myName.greeting.lang)} hello, just for you</div><div class="v">${esc(myName.greeting.text)}</div></div>${sayBtn(myName.greeting.text, myName.greeting.tts)}</div>` : ''}
         <div class="fact-box"><span class="e">🏳️</span><div style="flex:1"><div class="k">Flag</div><div class="v" style="font-size:1rem">${esc(c.flagColors)}</div></div>${sayBtn(`The flag is ${c.flagColors}.`)}</div>
       </div>
       ${c.story.memory ? `<div class="memory">💭 <span style="flex:1">${esc(c.story.memory)}</span>${sayBtn(c.story.memory)}</div>` : ''}

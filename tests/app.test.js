@@ -226,3 +226,38 @@ test('the default doll is the player look-alike and can be restored', () => {
   assert.ok(svg.includes('#6d2433'), 'gap-tooth grin is drawn');
   assert.ok(!svg.includes('NaN') && !svg.includes('undefined'));
 });
+
+// ---------- Name in other languages and the private photo face ----------
+
+import { nameFor, nameBook, NAME_COUNTRIES } from '../js/data/names.js';
+import { nameQuiz } from '../js/learn.js';
+import { setFacePhoto } from '../js/doll.js';
+
+test('the player name is written and greeted around the world', () => {
+  for (const id of NAME_COUNTRIES) assert.ok(getCountry(id), `unknown country ${id}`);
+  const book = nameBook(' Ananyaa ');
+  assert.ok(book && nameBook('ananya') === book, 'both spellings are known');
+  for (const [id, forms] of Object.entries(book.forms)) {
+    assert.ok(getCountry(id), `forms for unknown country ${id}`);
+    for (const f of forms) assert.ok(f.lang && f.script && f.tts, `${id} form is incomplete`);
+  }
+  assert.equal(nameFor('Ananyaa', 'KR').forms[0].script, '아난야');
+  assert.deepEqual(nameFor('Maya', 'KR').forms, [], 'unknown names get no made-up scripts');
+  assert.equal(nameFor('Maya', 'ES').greeting.text, '¡Hola, Maya!');
+  assert.equal(nameFor('', 'ES').greeting, null);
+  assert.deepEqual(nameQuiz('Maya'), []);
+  for (let i = 0; i < 30; i++) nameQuiz('Ananyaa', 6).forEach((q, k) => checkQ(q, `names#${k}`));
+});
+
+test('the photo face is drawn only when a photo is set', () => {
+  const look = { ...DEFAULT_LOOK, photoFace: true };
+  assert.ok(!renderDoll(look, { uid: 'p' }).includes('<image'), 'no photo, drawn face');
+  setFacePhoto('data:image/jpeg;base64,AAAA');
+  try {
+    const svg = renderDoll(look, { uid: 'p' });
+    assert.ok(svg.includes('<image href="data:image/jpeg;base64,AAAA"') && svg.includes('clip-path="url(#p-fc)"'));
+    assert.ok(!renderDoll({ ...look, photoFace: false }, { uid: 'p' }).includes('<image'), 'drawn face can be chosen');
+  } finally {
+    setFacePhoto(null);
+  }
+});

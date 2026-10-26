@@ -1,8 +1,11 @@
 // Home menu, first-launch welcome, and grown-up settings.
 
 import { $, esc } from '../util.js';
-import { store, dollName } from '../store.js';
+import { store, dollName, loadFace, clearFace } from '../store.js';
+import { setFacePhoto } from '../doll.js';
+import { cropFace } from './facecrop.js';
 import { rankInfo, giftReady, openGift } from '../game.js';
+import { nameBook } from '../data/names.js';
 import { COUNTRIES } from '../data/countries.js';
 import { allItems } from '../items.js';
 import { sfx, speak, unlockAudio, englishVoices, canSpeak } from '../audio.js';
@@ -20,6 +23,7 @@ export function home(el) {
     ${stageHTML({ scene: st.scene, uid: 'home' })}
     <div class="home-menu">
       <div class="title-art"><h1>Dress-Up World Tour</h1><p>Dress up ${esc(dollName())}, travel the world, learn as you go!</p></div>
+      ${st.kidName ? `<button class="name-banner" data-go="myname"><span class="nb-label">${esc(st.kidName)} around the world:</span> <span class="nb-name">${esc(st.kidName)}</span> <span class="nb-go">🌏 ➜</span></button>` : ''}
       <button class="rank-strip" data-go="stickers"><span class="rank-e">${r.rank.e}</span><span class="rank-t"><b>${esc(r.rank.name)}</b><span class="bar"><i style="width:${Math.round(r.progress * 100)}%"></i></span><small>${r.next ? `${r.toNext} ⭐ to ${esc(r.next.name)}` : 'Top rank!'} · 🏅 ${st.badges.length} stickers</small></span></button>
       <div class="tiles">
         <button class="tile hero" data-go="map"><span class="e">✈️</span>World Tour<small>${stamps} of ${COUNTRIES.length} passport stamps</small></button>
@@ -40,6 +44,15 @@ export function home(el) {
   const hello = giftReady() ? 'Look, a surprise gift is waiting for you! Tap the present!' : st.kidName ? `Hi ${st.kidName}! Where shall we go today?` : 'Hi! Where shall we go today?';
   bubble(stage, hello, { read: false });
   el.querySelector('[data-act="settings"]').addEventListener('click', () => { sfx('tap'); parentGate(() => go('settings')); });
+  // The name banner cycles through the player's name in different scripts.
+  const book = nameBook(st.kidName);
+  const nb = el.querySelector('.nb-name');
+  let timer = null;
+  if (book && nb) {
+    const scripts = [st.kidName, ...new Set(Object.values(book.forms).flat().map(f => f.script).filter(x => !/^[A-Za-z\s]+$/.test(x)))];
+    let i = 0;
+    timer = setInterval(() => { i = (i + 1) % scripts.length; nb.classList.remove('pop'); void nb.offsetWidth; nb.textContent = scripts[i]; nb.classList.add('pop'); }, 1800);
+  }
   el.querySelector('.gift')?.addEventListener('click', e => {
     const coins = openGift();
     sfx('unlock');
@@ -49,6 +62,7 @@ export function home(el) {
     modal(`<div class="result"><div class="stars-big gift-open">🎁</div><h2>Surprise! +${coins} coins 🪙</h2><p>Come back tomorrow for another gift.</p><div class="actions"><button class="btn big green" data-close>Yay!</button></div></div>`);
     speak(`Surprise! You got ${coins} coins!`);
   });
+  return () => clearInterval(timer);
 }
 
 export function welcome(el) {
@@ -97,6 +111,10 @@ export function settings(el) {
     ${canSpeak() ? `<label>Reading voice<select class="voice"><option value="">Automatic</option>${voices.map(v => `<option value="${esc(v.name)}" ${st.settings.voice === v.name ? 'selected' : ''}>${esc(v.name)} (${esc(v.lang)})</option>`).join('')}</select></label>
     <button class="btn white test-voice">▶️ Test the voice</button>` : '<p class="note">This browser has no read-aloud voices.</p>'}
     <p class="note">Tip: on iPad, extra voices (including Indian, Australian and British English, and Hindi, Korean, Mandarin and Indonesian for the hello words) can be downloaded in Settings → Accessibility → Spoken Content → Voices.</p>
+    <div class="face-photo-box"><b>📷 Photo face for the doll</b>
+      <p class="note">Make the doll look just like your child: choose a photo and line up the face. The picture is saved <b>only on this iPad</b>. It is never uploaded and is not part of the website.</p>
+      <div class="face-row"><div class="face-prev"></div><div class="actions" style="justify-content:flex-start;margin:0"><button class="btn choose-face">📷 Choose a photo</button><button class="btn white remove-face">Remove</button></div></div>
+      <input type="file" accept="image/*" class="face-file" hidden></div>
     <hr style="border:0;border-top:2px solid #f0e8fa;width:100%">
     <button class="btn purple unlock-all">🔓 Unlock all reward items</button>
     <button class="btn white reset">🗑️ Reset all progress</button>
@@ -124,6 +142,19 @@ export function settings(el) {
   if (v) v.addEventListener('change', () => store.update(s => { s.settings.voice = v.value; }));
   const tv = $('.test-voice', el);
   if (tv) tv.addEventListener('click', () => speak(`Hello ${store.state.kidName || 'friend'}! Let's learn some new words today.`));
+  const showFace = () => {
+    const f = loadFace();
+    $('.face-prev', el).innerHTML = f ? `<img src="${f}" alt="Photo face">` : '<span>🙂</span>';
+    $('.remove-face', el).hidden = !f;
+  };
+  $('.choose-face', el).addEventListener('click', () => $('.face-file', el).click());
+  $('.face-file', el).addEventListener('change', e => {
+    const file = e.target.files && e.target.files[0];
+    e.target.value = '';
+    if (file) cropFace(file, () => { store.update(s => { s.look.photoFace = true; }); showFace(); toast('📷 The doll now has the photo face!'); });
+  });
+  $('.remove-face', el).addEventListener('click', () => { clearFace(); setFacePhoto(null); showFace(); toast('Photo face removed'); });
+  showFace();
   $('.unlock-all', el).addEventListener('click', () => {
     store.update(s => { s.unlocked = allItems().filter(i => i.unlock).map(i => i.id); });
     toast('🔓 All reward items unlocked');

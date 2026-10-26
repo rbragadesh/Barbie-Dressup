@@ -68,6 +68,8 @@ export const MY_LOOK = {
   eyes: 'dark',
   hairStyle: 'crownbraids',
   hairColor: 'black',
+  brows: 'bold',
+  photoFace: true,
   top: null,
   bottom: null,
   dress: { id: 'sequinjumpsuit', color: '#4a1e35', pattern: 'sequins', patternColor: '#c27a9e' },
@@ -80,6 +82,13 @@ export const MY_LOOK = {
 };
 
 export const DEFAULT_LOOK = MY_LOOK;
+
+// Optional photo face: a cropped picture kept only on this device (see store.js), never in the code.
+let facePhoto = null;
+export const setFacePhoto = url => { facePhoto = url || null; };
+export const hasFacePhoto = () => !!facePhoto;
+// The face outline's box; the crop tool uses the same shape.
+export const FACE_BOX = { x: 142, y: 80, w: 116, h: 140 };
 
 export const skinColor = id => (SKIN_TONES.find(s => s.id === id) || SKIN_TONES[2]).c;
 const hairInfo = id => HAIR_COLORS.find(h => h.id === id) || HAIR_COLORS[0];
@@ -194,13 +203,17 @@ function arms(skin, look) {
 
 // ---------- Face ----------
 
-function face(skin, look, expr, hairC) {
+function face(skin, look, expr, hairC, uid = 'doll') {
   const m = look.makeup || {};
   const sd = shade(skin, -0.2);
   const eye = eyeColor(look.eyes);
   const brow = shade(hairC, -0.15);
   let s = both(`<ellipse cx="141" cy="150" rx="8" ry="13" fill="${skin}"/><path d="M139 144q-4 6 1 12" stroke="${sd}" stroke-width="1.3" fill="none"/>`);
   s += `<path d="${P.face}" fill="${skin}"/>`;
+  if (look.photoFace && facePhoto) {
+    const { x, y, w, h } = FACE_BOX;
+    return s + `<clipPath id="${uid}-fc"><path d="${P.face}"/></clipPath><image href="${facePhoto}" x="${x}" y="${y}" width="${w}" height="${h}" preserveAspectRatio="none" clip-path="url(#${uid}-fc)"/>`;
+  }
 
   // eyeshadow sits under the eye whites
   if (m.shadow) s += both(`<path d="M163 147Q178 125 194 146Q178 136 163 147Z" fill="${m.shadow}" opacity=".75"/>`);
@@ -220,7 +233,9 @@ function face(skin, look, expr, hairC) {
   // eyelid used for the blink animation (scaled from the top in CSS)
   const lid = shut ? '' : `<ellipse class="lid" cx="178" cy="151" rx="12.5" ry="14" fill="${skin}" style="transform-box:fill-box;transform-origin:50% 0;transform:scaleY(0)"/>`;
   s += both(oneEye + lid);
-  s += both(`<path d="M164 127Q177 119 192 125" stroke="${brow}" stroke-width="3.4" fill="none" stroke-linecap="round"/>`);
+  s += both(look.brows === 'bold'
+    ? `<path d="M163 128Q176 118 192 124" stroke="${shade(brow, -0.2)}" stroke-width="4.8" fill="none" stroke-linecap="round"/>`
+    : `<path d="M164 127Q177 119 192 125" stroke="${brow}" stroke-width="3.4" fill="none" stroke-linecap="round"/>`);
   s += `<path d="M199 166Q201 174 204 172" stroke="${sd}" stroke-width="1.8" fill="none" stroke-linecap="round"/>`;
 
   if (m.blush) s += both(`<ellipse cx="164" cy="178" rx="11" ry="7" fill="${m.blush}" opacity=".45"/>`);
@@ -452,7 +467,7 @@ export function renderDoll(look, opts = {}) {
     g('socks.main', 'shoes.main', 'bottom.main', 'top.main', 'dress.main', 'outer.main', 'necklace.main'),
     arms(skin, L),
     g('top.sleeves', 'dress.sleeves', 'outer.sleeves', 'bracelet.main', 'ring.main', 'prop.main', 'scarf.main', 'dress.front', 'outer.front', 'top.front'),
-    `<g class="face">${face(skin, L, expr, hairBase)}</g>`,
+    `<g class="face">${face(skin, L, expr, hairBase, uid)}</g>`,
     g('head.under'),
     covered ? '' : `<g class="hair-front">${H.front}</g>`,
     g('head.main', 'glasses.main', ...(covered ? [] : ['earrings.main']), 'necklace.front', 'prop.front'),

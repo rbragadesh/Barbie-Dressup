@@ -5,7 +5,8 @@ import { store } from '../store.js';
 import { COUNTRIES, getCountry, displayName } from '../data/countries.js';
 import { renderDoll } from '../doll.js';
 import { renderScene } from '../scenes.js';
-import { mixedMath, mathProblem, vocabSet, allWords, wordKey, flagQuiz, capitalQuiz, beliefsQuiz } from '../learn.js';
+import { mixedMath, mathProblem, vocabSet, allWords, wordKey, flagQuiz, capitalQuiz, beliefsQuiz, nameQuiz } from '../learn.js';
+import { nameBook } from '../data/names.js';
 import { sfx } from '../audio.js';
 import { go, topbar, modal, closeModal, toast, runQuestions, resultHTML, sayBtn } from '../ui.js';
 
@@ -16,7 +17,8 @@ export function passport(el) {
   const got = COUNTRIES.filter(c => st.trips[c.id]?.stamp).length;
   el.innerHTML = `${topbar('🛂 My Passport')}
   <div class="passport"><div class="passport-book">
-    <h2>✦ PASSPORT ✦ ${esc((st.dollName || 'Maya').toUpperCase())} ✦</h2>
+    <h2>✦ PASSPORT ✦ ${esc((st.kidName || st.dollName || 'Maya').toUpperCase())} ✦</h2>
+    ${nameBook(st.kidName) ? `<p class="passport-names">${['IN', 'KR', 'JP', 'TH', 'AE', 'TW'].map(id => nameBook(st.kidName).forms[id][0].script).join(' · ')}</p>` : ''}
     <div class="stamp-grid">${COUNTRIES.map((c, i) => {
       const t = st.trips[c.id];
       return t?.stamp
@@ -93,12 +95,13 @@ const GAMES = [
   { id: 'flags', e: '🏳️', name: 'Flag Match', sub: 'Whose flag is it?' },
   { id: 'capitals', e: '🏙️', name: 'Capital Cities', sub: 'Big city names' },
   { id: 'beliefs', e: '🕊️', name: 'Beliefs Quiz', sub: 'Religions of the world' },
+  { id: 'names', e: '✍️', name: 'My Name Quiz', sub: 'Your name in other scripts', needsName: true },
 ];
 
 export function practice(el) {
   el.innerHTML = `${topbar('🎮 Games & Quizzes')}
     <div class="scroll"><div class="sec-title">🎮 Games</div><div class="practice-tiles">${ARCADE.map(g => `<button class="tile arcade" data-go="${g.go}"><span class="e">${g.e}</span>${g.name}<small>${g.sub}</small></button>`).join('')}</div>
-    <div class="sec-title" style="margin-top:18px">🧠 Quizzes</div><div class="practice-tiles">${GAMES.map(g => `<button class="tile" data-go="quiz" data-param="${g.id}"><span class="e">${g.e}</span>${g.name}<small>${g.sub}</small></button>`).join('')}</div>
+    <div class="sec-title" style="margin-top:18px">🧠 Quizzes</div><div class="practice-tiles">${GAMES.filter(g => !g.needsName || nameBook(store.state.kidName)).map(g => `<button class="tile" data-go="quiz" data-param="${g.id}"><span class="e">${g.e}</span>${g.name}<small>${g.sub}</small></button>`).join('')}</div>
     <p class="note" style="text-align:center;margin-top:18px">Maths level: ${['', 'Easy', 'Medium', 'Hard'][store.state.settings.level]} (a grown-up can change this in ⚙️ settings).</p></div>`;
 }
 
@@ -113,12 +116,13 @@ export function quiz(el, params) {
   else if (g.id === 'flags') qs = flagQuiz(COUNTRIES, 6);
   else if (g.id === 'capitals') qs = capitalQuiz(pool.length >= 4 ? pool : COUNTRIES, 6);
   else if (g.id === 'beliefs') qs = beliefsQuiz(6);
+  else if (g.id === 'names') qs = nameQuiz(store.state.kidName, 6);
   else {
     const learned = allWords().filter(w => store.state.words[wordKey(w.cid, w)]);
     const src = learned.length >= 4 ? learned : allWords().filter(w => getCountry(w.cid).focus);
     qs = vocabSet(shuffle(src), src.length >= 4 ? src : allWords(), 6);
   }
-  el.innerHTML = `${topbar(`${g.e} ${g.name}`, { back: { words: 'words', beliefs: 'beliefs' }[params.id] || 'practice' })}<div class="scroll"><div style="max-width:860px;margin:0 auto" class="qbox"></div></div>`;
+  el.innerHTML = `${topbar(`${g.e} ${g.name}`, { back: { words: 'words', beliefs: 'beliefs', names: 'myname' }[params.id] || 'practice' })}<div class="scroll"><div style="max-width:860px;margin:0 auto" class="qbox"></div></div>`;
   const box = $('.qbox', el);
   runQuestions(box, qs, {
     title: g.name,

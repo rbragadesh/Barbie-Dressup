@@ -4,6 +4,8 @@ import { $, esc, shuffle } from '../util.js';
 import { store, dollName } from '../store.js';
 import { THEMES, getTheme, judge, COMMENTS } from '../data/themes.js';
 import { RELIGIONS, BELIEFS_INTRO } from '../data/religions.js';
+import { nameBook, nameFor, NAME_COUNTRIES } from '../data/names.js';
+import { getCountry, displayName } from '../data/countries.js';
 import { allItems, freshWorn, thumbBox, getItem } from '../items.js';
 import { renderItemThumb } from '../doll.js';
 import { RANKS, BADGES, rankInfo, discoveredBeliefs, buy, owns, addCoins, bumpStat } from '../game.js';
@@ -159,3 +161,26 @@ export function stickers(el) {
       }).join('')}</div></div>`;
 }
 
+
+// ---------- My name around the world ----------
+
+export function myname(el) {
+  const name = store.state.kidName;
+  const book = nameBook(name);
+  const cards = NAME_COUNTRIES.map(id => {
+    const c = getCountry(id);
+    const n = nameFor(name, id);
+    const rows = n.forms.filter(f => !/^[A-Za-z\s]+$/.test(f.script)).map(f => `<div class="nm-row"><span class="nm-script">${esc(f.script)}</span><span class="nm-lang">${esc(f.lang)}${f.say ? ` · say "${esc(f.say)}"` : ''}</span>${sayBtn(f.script, f.tts, f.say || name)}</div>`).join('');
+    const greet = n.greeting ? `<div class="nm-row"><span class="nm-greet">${esc(n.greeting.text)}</span><span class="nm-lang">${esc(n.greeting.lang)}</span>${sayBtn(n.greeting.text, n.greeting.tts)}</div>` : '';
+    if (!rows && !greet) return '';
+    return `<div class="nm-card"><div class="nm-head"><span class="flag">${c.flag}</span><b>${esc(displayName(c).replace(/^the /, 'The '))}</b></div>${rows}${greet}</div>`;
+  }).join('');
+  el.innerHTML = `${topbar('🌏 My Name Around the World')}
+    <div class="scroll">
+      ${name ? `<div class="memory" style="margin-bottom:12px">✨ <span style="flex:1">${book ? esc(book.meaning) + ' ' : ''}Tap 🔊 to hear your name the way people say it in each country.</span>${book ? sayBtn(book.meaning) : ''}</div>`
+        : `<div class="memory">✨ <span style="flex:1">Ask a grown-up to type your name in ⚙️ settings, then come back!</span></div>`}
+      <div class="nm-grid">${cards}</div>
+      ${book ? `<div class="actions" style="display:flex;justify-content:center;margin-top:14px"><button class="btn big purple" data-go="quiz" data-param="names">✍️ Name quiz: which language?</button></div>` : ''}
+    </div>`;
+  if (book) narrate(`${name}! ${book.meaning}`);
+}

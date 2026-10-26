@@ -65,5 +65,11 @@ export const addStars = n => store.update(s => { s.stars = Math.max(0, s.stars +
 export const trip = id => (store.state.trips[id] = store.state.trips[id] || { done: {} });
 export const isUnlocked = itemId => store.state.unlocked.includes(itemId);
 export const isOwned = itemId => store.state.owned.includes(itemId);
+// The optional photo face is kept apart from the main save so album entries stay small.
+const FACE_KEY = 'dressup-face-v1';
+export function loadFace() { try { return localStorage.getItem(FACE_KEY); } catch { return null; } }
+export function saveFace(dataUrl) { try { localStorage.setItem(FACE_KEY, dataUrl); return true; } catch { return false; } }
+export function clearFace() { try { localStorage.removeItem(FACE_KEY); } catch { /* ignore */ } }
+
 export const dollName = () => store.state.dollName || 'Maya';
 export const kidName = () => store.state.kidName || 'friend';

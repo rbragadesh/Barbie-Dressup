@@ -1,7 +1,8 @@
 // Entry point: registers screens, starts on the welcome or home screen, and
 // registers the service worker so the app works offline once installed.
 
-import { store } from './store.js';
+import { store, loadFace } from './store.js';
+import { setFacePhoto } from './doll.js';
 import { registerScreen, go, celebrate } from './ui.js';
 import { checkRewards, onAnnounce } from './game.js';
 import { home, welcome, settings } from './screens/home.js';
@@ -9,7 +10,7 @@ import studio from './screens/studio.js';
 import mapScreen from './screens/map.js';
 import tripScreen from './screens/trip.js';
 import { passport, words, practice, quiz, album } from './screens/collections.js';
-import { show, runway, boutique, beliefs, stickers } from './screens/extras.js';
+import { show, runway, boutique, beliefs, stickers, myname } from './screens/extras.js';
 import { memory, suitcase, mapquest } from './screens/minigames.js';
 
 registerScreen('home', home);
@@ -31,11 +32,13 @@ registerScreen('stickers', stickers);
 registerScreen('memory', memory);
 registerScreen('suitcase', suitcase);
 registerScreen('mapquest', mapquest);
+registerScreen('myname', myname);
 
 // Stickers and rank-ups are checked after every change and announced with a banner.
 onAnnounce(celebrate);
 store.onChange(checkRewards);
 
+setFacePhoto(loadFace());
 go(store.state.onboarded ? 'home' : 'welcome');
 
 // Stop iOS from zooming on double-tap or pinch while a child is playing.
