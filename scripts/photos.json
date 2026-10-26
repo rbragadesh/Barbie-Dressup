@@ -102,8 +102,8 @@
   ]
  },
  "mosque": {
-  "search": "\"Sheikh Zayed\" mosque domes exterior filetype:bitmap",
-  "limit": 8
+  "search": "incategory:\"Sheikh Zayed Grand Mosque\" filetype:bitmap",
+  "limit": 12
  },
  "cairo": {
   "files": [
@@ -131,11 +131,11 @@
   ]
  },
  "mosque_b": {
-  "search": "\"Sheikh Zayed Grand Mosque\" incategory:\"Featured pictures on Wikimedia Commons\"",
-  "limit": 6
+  "search": "Sheikh Zayed Mosque exterior domes filetype:bitmap",
+  "limit": 8
  },
  "mosque_c": {
-  "search": "\"Sheikh Zayed Grand Mosque\" courtyard filetype:bitmap",
+  "search": "intitle:\"Sheikh Zayed\" incategory:Quality_images",
   "limit": 8
  }
 }
