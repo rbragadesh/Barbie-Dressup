@@ -14,11 +14,14 @@ tracking) that installs on the iPad home screen and works offline.
 ## What's inside
 
 **Dressing room**
+- The doll starts out looking like the player (crown braids, kajal, a little black bindi,
+  a gap-tooth grin, plum sequin jumpsuit with a bow bolero and Mary Janes). The 👧 **Me**
+  button switches back to that look any time. No photos are stored: the look is drawn.
 - 10 hair styles × 14 colours (including rainbow, ombré and mermaid)
 - 6 skin tones, 7 eye colours
 - Makeup: lipstick, eyeshadow, blush, lashes, bindi, face paint, glitter
 - Nail salon: paint every nail or one at a time, 7 nail-art styles, mehndi (henna)
-- 117 items in layers: tops, skirts and trousers, dresses, coats and drapes, scarves,
+- 120 items in layers: tops, skirts and trousers, dresses, coats and drapes, scarves,
   socks and tights, shoes, hats and crowns, necklaces, earrings, rings, bangles,
   glasses, things to hold, wings
 - Traditional outfits: saree, lehenga choli, pattu pavadai, anarkali, kurti, hanbok,

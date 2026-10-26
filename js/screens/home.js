@@ -57,8 +57,8 @@ export function welcome(el) {
     ${stageHTML({ scene: 'studio', uid: 'welcome' })}
     <div class="form">
       <div class="title-art" style="text-align:left"><h1 style="font-size:2rem">Dress-Up World Tour</h1></div>
-      <label>👧 What is your name?<input type="text" class="kid" maxlength="20" autocomplete="off" placeholder="Your name"></label>
-      <label>🪆 What will you call your doll?<input type="text" class="doll" maxlength="16" autocomplete="off" placeholder="${DOLL_NAMES[0]}"></label>
+      <label>👧 What is your name?<input type="text" class="kid-name" maxlength="20" autocomplete="off" placeholder="Your name"></label>
+      <label>🪆 What will you call your doll?<input type="text" class="doll-name" maxlength="16" autocomplete="off" placeholder="${DOLL_NAMES[0]}"></label>
       <div class="name-chips">${DOLL_NAMES.map(n => `<button data-name="${n}">${n}</button>`).join('')}</div>
       <button class="btn big start">Let's go! ✨</button>
     </div></div>`;
@@ -67,14 +67,14 @@ export function welcome(el) {
   el.querySelector('.name-chips').addEventListener('click', e => {
     const b = e.target.closest('[data-name]');
     if (!b) return;
-    $('.doll', el).value = b.dataset.name;
+    $('.doll-name', el).value = b.dataset.name;
   });
   $('.start', el).addEventListener('click', () => {
     unlockAudio();
     sfx('success');
     store.update(s => {
-      s.kidName = $('.kid', el).value.trim().slice(0, 20);
-      s.dollName = $('.doll', el).value.trim().slice(0, 16) || DOLL_NAMES[0];
+      s.kidName = $('.kid-name', el).value.trim().slice(0, 20);
+      s.dollName = $('.doll-name', el).value.trim().slice(0, 16) || DOLL_NAMES[0];
       s.onboarded = true;
     });
     speak(`Yay! Hi ${store.state.kidName || 'there'}! I'm ${dollName()}. Let's go on a world tour!`);
@@ -87,8 +87,8 @@ export function settings(el) {
   const voices = englishVoices();
   el.innerHTML = `${topbar('⚙️ Grown-up settings')}
   <div class="scroll"><div class="card form" style="max-width:820px;margin:0 auto">
-    <label>Child's name<input type="text" class="kid" maxlength="20" value="${esc(st.kidName)}"></label>
-    <label>Doll's name<input type="text" class="doll" maxlength="16" value="${esc(st.dollName)}"></label>
+    <label>Child's name<input type="text" class="kid-name" maxlength="20" value="${esc(st.kidName)}"></label>
+    <label>Doll's name<input type="text" class="doll-name" maxlength="16" value="${esc(st.dollName)}"></label>
     <div><b>Maths level</b><div class="seg" style="margin-top:6px">
       ${[[1, 'Easy', 'Add & take away to 20, o\'clock'], [2, 'Medium', 'To 100, ×2 ×5 ×10, half past'], [3, 'Hard', 'Times tables, sharing, quarter past']].map(([v, n, d]) => `<button data-level="${v}" class="${st.settings.level === v ? 'on' : ''}">${n}<small>${d}</small></button>`).join('')}
     </div></div>
@@ -105,8 +105,8 @@ export function settings(el) {
   </div></div>`;
 
   const save = () => store.update(s => {
-    s.kidName = $('.kid', el).value.trim().slice(0, 20);
-    s.dollName = $('.doll', el).value.trim().slice(0, 16);
+    s.kidName = $('.kid-name', el).value.trim().slice(0, 20);
+    s.dollName = $('.doll-name', el).value.trim().slice(0, 16);
   });
   el.querySelectorAll('input').forEach(i => i.addEventListener('change', save));
   el.querySelectorAll('[data-level]').forEach(b => b.addEventListener('click', () => {

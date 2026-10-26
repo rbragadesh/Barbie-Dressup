@@ -15,6 +15,7 @@ export const SKIN_TONES = [
   { id: 'peach', name: 'Peach', c: '#f6cfb2' },
   { id: 'golden', name: 'Golden', c: '#e8b48a' },
   { id: 'tan', name: 'Tan', c: '#cf9467' },
+  { id: 'caramel', name: 'Caramel', c: '#b07856' },
   { id: 'brown', name: 'Brown', c: '#a86b45' },
   { id: 'deep', name: 'Deep', c: '#77452b' },
 ];
@@ -57,21 +58,28 @@ export const HAIR_STYLES = [
   { id: 'pigtails', name: 'Pigtails' },
   { id: 'curly', name: 'Curly' },
   { id: 'bob', name: 'Bob' },
+  { id: 'crownbraids', name: 'Crown braids' },
 ];
 
-export const DEFAULT_LOOK = {
-  skin: 'golden',
-  eyes: 'brown',
-  hairStyle: 'long',
+// The doll starts out looking like the player: crown braids, kajal, a little black bindi,
+// a gap-tooth grin and her favourite plum sequin jumpsuit with a bow bolero.
+export const MY_LOOK = {
+  skin: 'caramel',
+  eyes: 'dark',
+  hairStyle: 'crownbraids',
   hairColor: 'black',
-  top: { id: 'tee', color: '#ff8fc8', pattern: 'solid' },
-  bottom: { id: 'skirt', color: '#7ec8ff', pattern: 'solid' },
-  shoes: { id: 'flats', color: '#ff5fa2' },
-  makeup: { lips: null, shadow: null, blush: '#ff8fa8', lashes: true, bindi: null, art: null, glitter: false },
-  nails: ['#ff5fa2', '#ff5fa2', '#ff5fa2', '#ff5fa2', '#ff5fa2'],
+  top: null,
+  bottom: null,
+  dress: { id: 'sequinjumpsuit', color: '#4a1e35', pattern: 'sequins', patternColor: '#c27a9e' },
+  outer: { id: 'bolero', color: '#4a1e35', accent: '#7a3558', pattern: 'sequins', patternColor: '#c27a9e' },
+  shoes: { id: 'maryjanes', color: '#5a2c45', accent: '#ecd9e3' },
+  makeup: { lips: '#d48a95', shadow: null, blush: null, lashes: true, bindi: 'small', art: null, glitter: false, kajal: true, smile: 'grin' },
+  nails: ['#f6d6df', '#f6d6df', '#f6d6df', '#f6d6df', '#f6d6df'],
   nailArt: 'plain',
   mehndi: false,
 };
+
+export const DEFAULT_LOOK = MY_LOOK;
 
 export const skinColor = id => (SKIN_TONES.find(s => s.id === id) || SKIN_TONES[2]).c;
 const hairInfo = id => HAIR_COLORS.find(h => h.id === id) || HAIR_COLORS[0];
@@ -89,6 +97,7 @@ export const PATTERNS = [
   { id: 'checks', name: 'Checks' },
   { id: 'paisley', name: 'Paisley' },
   { id: 'sparkle', name: 'Sparkle' },
+  { id: 'sequins', name: 'Sequins' },
 ];
 
 function motifColor(c) {
@@ -114,6 +123,8 @@ function patternDef(id, pattern, c, accent) {
       return open(16, 16) + `<rect width="8" height="16" fill="${m}" opacity=".45"/><rect width="16" height="8" fill="${m}" opacity=".45"/></pattern>`;
     case 'paisley':
       return open(30, 30) + `<path d="M8 20c-5-3-4-12 3-12 5 0 6 7 2 9-2 1-1 4 2 5-3 1-5 0-7-2z" fill="${m}"/><circle cx="10" cy="12" r="1.6" fill="${c}"/><circle cx="23" cy="6" r="1.8" fill="${m}"/><circle cx="25" cy="24" r="1.4" fill="${m}"/></pattern>`;
+    case 'sequins':
+      return open(10, 10) + `<circle cx="2.5" cy="2.5" r="1.5" fill="${m}" opacity=".9"/><circle cx="7.5" cy="4.2" r="1.2" fill="${shade(m, 0.3)}" opacity=".8"/><circle cx="4.2" cy="7.8" r="1.4" fill="${m}" opacity=".7"/><circle cx="9" cy="9" r=".9" fill="${shade(m, 0.45)}"/><circle cx="2" cy="2" r=".5" fill="#fff" opacity=".8"/></pattern>`;
     case 'sparkle':
       return open(20, 20) + sparkle(5, 5, 3, '#fff') + sparkle(15, 13, 2.2, '#fff8c4') + `<circle cx="14" cy="4" r=".9" fill="#fff"/><circle cx="4" cy="16" r=".9" fill="#fff"/></pattern>`;
     default:
@@ -203,7 +214,9 @@ function face(skin, look, expr, hairC) {
       `<circle cx="178" cy="154" r="4.6" fill="#1a1414"/>` +
       `<circle cx="181" cy="149" r="2.9" fill="#fff"/><circle cx="175" cy="157" r="1.3" fill="#fff"/>` +
       `<path d="M165.5 148Q178 134 190.5 148" stroke="#2a1e1e" stroke-width="2.6" fill="none" stroke-linecap="round"/>` +
-      (m.lashes !== false ? `<path d="M166 147l-5-3M168 143.5l-4-4.5M171 140.8l-2.5-5" stroke="#2a1e1e" stroke-width="1.8" stroke-linecap="round"/>` : '');
+      (m.lashes !== false ? `<path d="M166 147l-5-3M168 143.5l-4-4.5M171 140.8l-2.5-5" stroke="#2a1e1e" stroke-width="1.8" stroke-linecap="round"/>` : '') +
+      // kajal: a thick lined eye with a little wing, popular in India
+      (m.kajal ? `<path d="M165 148Q178 133.5 191 148" stroke="#111" stroke-width="3.6" fill="none" stroke-linecap="round"/><path d="M166 148.5L158.5 145" stroke="#111" stroke-width="2.6" stroke-linecap="round"/><path d="M167.5 159Q178 166 189 159" stroke="#1d1416" stroke-width="1.6" fill="none" stroke-linecap="round"/>` : '');
   // eyelid used for the blink animation (scaled from the top in CSS)
   const lid = shut ? '' : `<ellipse class="lid" cx="178" cy="151" rx="12.5" ry="14" fill="${skin}" style="transform-box:fill-box;transform-origin:50% 0;transform:scaleY(0)"/>`;
   s += both(oneEye + lid);
@@ -214,7 +227,15 @@ function face(skin, look, expr, hairC) {
   if (expr === 'cold') s += both(`<ellipse cx="164" cy="178" rx="11" ry="7" fill="#7fb6ff" opacity=".45"/>`);
 
   const lip = m.lips || shade(skin, -0.28).replace(/^#/, '#');
-  if (expr === 'wow') {
+  if (m.smile === 'grin' && (expr === 'smile' || expr === 'happy')) {
+    // big grin with the two top front teeth missing
+    s += `<path d="M185 186Q200 189 215 186Q213 202 200 203Q187 202 185 186Z" fill="#6d2433"/>` +
+      `<path d="M187.5 187.4Q200 190 212.5 187.4L211.8 191.6Q200 193.6 188.2 191.6Z" fill="#fff"/>` +
+      `<path d="M197.3 188.6H202.7V192.6H197.3Z" fill="#6d2433"/>` +
+      `<path d="M193 188.6v3.4M207 188.6v3.4" stroke="#e6dada" stroke-width=".7"/>` +
+      `<path d="M192 199Q200 195.5 208 199Q200 202.5 192 199Z" fill="#e8738a"/>` +
+      `<path d="M185 186Q200 189 215 186Q213 202 200 203Q187 202 185 186Z" fill="none" stroke="${lip}" stroke-width="2.2" stroke-linejoin="round"/>`;
+  } else if (expr === 'wow') {
     s += `<ellipse cx="200" cy="193" rx="7" ry="8.5" fill="#7a2d3a"/><ellipse cx="200" cy="193" rx="7" ry="8.5" fill="none" stroke="${lip}" stroke-width="3"/>`;
   } else if (expr === 'happy') {
     s += `<path d="M184 186Q200 186 216 186Q214 204 200 205Q186 204 184 186Z" fill="#7a2d3a"/><path d="M186 187Q200 188 214 187L213 191Q200 193 187 191Z" fill="#fff"/><path d="M184 186Q200 186 216 186Q214 204 200 205Q186 204 184 186Z" fill="none" stroke="${lip}" stroke-width="2.6" stroke-linejoin="round"/>`;
@@ -234,6 +255,8 @@ function face(skin, look, expr, hairC) {
 
 function bindi(kind) {
   switch (kind) {
+    case 'small':
+      return `<circle cx="200" cy="131" r="2.3" fill="#1a1416"/>`;
     case 'jewel':
       return `<circle cx="200" cy="129" r="3.8" fill="#d6224f"/><circle cx="200" cy="129" r="3.8" fill="none" stroke="#f2c14e" stroke-width="1.2"/><circle cx="199" cy="128" r="1" fill="#fff"/>`;
     case 'drop':
@@ -323,6 +346,29 @@ function hair(style, fill, base) {
       const bangs = [[158, 98, 16], [180, 90, 17], [204, 88, 18], [228, 92, 17], [248, 104, 15], [146, 118, 13], [256, 122, 12]];
       const front = bangs.map(([x, y, r]) => `<circle cx="${x}" cy="${y}" r="${r}" fill="${fill}"/>`).join('') + bangs.map(([x, y, r]) => `<path d="M${x - r * 0.4} ${y}a${r * 0.4} ${r * 0.4} 0 1 1 ${r * 0.5} ${r * 0.3}" stroke="${line}" stroke-width="1.3" fill="none" opacity=".5"/>`).join('');
       return { back, front };
+    }
+    case 'crownbraids': {
+      // Two braids run back from a centre parting along the hairline, with loose wisps by the face.
+      const bez = (p0, p1, p2, p3, n) => Array.from({ length: n + 1 }, (_, i) => {
+        const t = i / n;
+        const u = 1 - t;
+        return [0, 1].map(k => u * u * u * p0[k] + 3 * u * u * t * p1[k] + 3 * u * t * t * p2[k] + t * t * t * p3[k]);
+      });
+      const braidFill = shade(base, 0.07);
+      const along = (pts, w) => pts.slice(0, -1).map(([x1, y1], i) => {
+        const [x2, y2] = pts[i + 1];
+        const cx = ((x1 + x2) / 2).toFixed(1);
+        const cy = ((y1 + y2) / 2).toFixed(1);
+        const ang = (Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI + (i % 2 ? 22 : -22)).toFixed(1);
+        const rx = (Math.hypot(x2 - x1, y2 - y1) * 0.72).toFixed(1);
+        return `<ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${w / 2}" transform="rotate(${ang} ${cx} ${cy})" fill="${braidFill}" stroke="${line}" stroke-width="1.1"/>`;
+      }).join('');
+      const cap = `<path d="M137 150C127 96 160 62 200 62C240 62 273 96 263 150C258 120 246 98 226 90C214 86 206 84 200 82C194 84 186 86 174 90C154 98 142 120 137 150Z" fill="${fill}"/>`;
+      const wisp = `<g fill="none" stroke="${fill}" stroke-width="2.2" stroke-linecap="round"><path d="M146 130C139 152 151 170 145 190C142 202 150 210 146 222"/><path d="M152 126C148 142 156 154 152 170"/></g>`;
+      return {
+        back: `<path d="M140 128C132 150 136 172 146 184L254 184C264 172 268 150 260 128Z" fill="${fill}"/>`,
+        front: cap + `<path d="M200 64V82" stroke="${line}" stroke-width="1.6" opacity=".7"/>` + both(along(bez([197, 66], [176, 60], [150, 72], [140, 120], 9), 9)) + wisp + mirror(`<g fill="none" stroke="${fill}" stroke-width="2" stroke-linecap="round"><path d="M147 132C142 150 149 162 146 178"/></g>`),
+      };
     }
     case 'bob':
       return {

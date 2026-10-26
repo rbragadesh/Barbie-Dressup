@@ -586,6 +586,29 @@ def('back', 'butterflywings', 'Butterfly wings', { color: '#ffb74d', accent: '#7
   back: both(`<path d="M190 300C150 190 40 150 30 240C26 300 100 330 186 322Z" fill="${p.c}" stroke="${p.a}" stroke-width="5"/><circle cx="90" cy="240" r="14" fill="${p.a}"/><circle cx="90" cy="240" r="6" fill="#fff"/><path d="M186 330C120 340 60 410 96 450C130 480 172 410 190 350Z" fill="${p.c}" stroke="${p.a}" stroke-width="5"/>`),
 }));
 
+// ===== Her own outfit =====
+def('dress', 'sequinjumpsuit', 'Sequin jumpsuit', { color: '#4a1e35', pattern: 'sequins', patternColor: '#c27a9e', warmth: 1 }, p => ({
+  // wide palazzo legs that flare out to the ankle
+  main: outline('M157 396L243 396C251 420 255 440 255 462L276 748L204 748L201 496L199 496L196 748L124 748L145 462C145 440 149 420 157 396Z', p.fill, p.dd) +
+    `<path d="M200 496V748" stroke="${p.dd}" stroke-width="1.6"/><path d="M164 470L150 744M236 470L250 744" stroke="${p.d}" stroke-width="1.2" opacity=".5"/>` +
+    outline(bodice('v', 404, 3, 0), p.fill, p.dd) + `<path d="M157 394Q200 402 243 394L244 408Q200 416 156 408Z" fill="${p.d}"/>`,
+}));
+def('outer', 'bolero', 'Velvet bolero', { color: '#4a1e35', accent: '#7a3558', pattern: 'sequins', patternColor: '#c27a9e', warmth: 2 }, p => {
+  const panel = `M180 248L139 259${curveThrough([[139, 259], ...sidePts(272, 396, 5)])}Q166 404 184 392C190 360 190 320 186 290Z`;
+  const bow = `<g transform="translate(226 282) scale(1.35)"><path d="M0 0C-8 -22 -40 -22 -36 -2C-34 14 -10 10 0 0Z" fill="${p.fill}" stroke="${p.a}" stroke-width="2.4"/><path d="M0 0C8 -22 40 -22 36 -2C34 14 10 10 0 0Z" fill="${p.fill}" stroke="${p.a}" stroke-width="2.4"/>` +
+    `<path d="M-4 4L-18 42L-6 38L0 46Z" fill="${p.fill}" stroke="${p.a}" stroke-width="2"/><path d="M4 4L16 40L6 37L2 44Z" fill="${p.fill}" stroke="${p.a}" stroke-width="2"/><ellipse cx="0" cy="0" rx="7" ry="8" fill="${p.d}" stroke="${p.a}" stroke-width="2"/></g>`;
+  return {
+    main: both(outline(panel, p.fill, p.dd) + `<path d="M180 248C192 270 190 330 184 392Q166 404 150 398" stroke="${p.a}" stroke-width="3" fill="none"/>`),
+    sleeves: both(`<path d="M159 253C138 255 124 270 120 296C118 340 112 400 102 458Q118 467 134 459C138 410 142 360 146 330L150 300C151 290 154 278 161 266Z" fill="${p.fill}" stroke="${p.dd}" stroke-width="1.2"/><path d="M103 452Q118 461 133 453" stroke="${p.a}" stroke-width="3" fill="none"/>`),
+    front: bow,
+  };
+});
+def('shoes', 'maryjanes', 'Mary Jane flats', { color: '#5a2c45', accent: '#ecd9e3', warmth: 0 }, p => ({
+  main: footShoe('M165 751C162 760 163 768 170 771C178 774 188 773 191 768C193 762 192 756 189 750Q178 757 165 751Z', p.fill, p.dd,
+    `<path d="M167 749Q178 742 190 748" stroke="${p.d}" stroke-width="3" fill="none"/><rect x="185" y="744" width="5" height="5" rx="1" fill="${p.a}" opacity=".8"/>` +
+    flower(176, 762, p.a, p.al, 2.4) + `<path d="M180 764q4 -3 8 -1M172 765q-3 2 -5 0" stroke="${p.a}" stroke-width="1" fill="none"/><path d="M164 768Q178 776 192 768" stroke="${p.dd}" stroke-width="2" fill="none"/>`),
+}));
+
 // ===== Modest wear and visiting clothes =====
 def('head', 'headscarf', 'Headscarf', { color: '#9575cd', accent: '#ffffff', warmth: 1, hidesHair: true, tags: ['AE', 'EG'] }, p => ({
   back: `<path d="M126 150C118 60 282 60 274 150C282 220 294 280 304 318Q200 334 96 318C106 280 118 220 126 150Z" fill="${p.fill}" stroke="${p.d}" stroke-width="1.2"/>`,
@@ -735,6 +758,7 @@ const COVER = {
   gown: 'kn lg', mermaid: 'kn lg', maxidress: 'sh kn lg', galaxy: 'sh kn lg',
   saree: 'sh kn lg', lehenga: 'sh kn lg', pavadai: 'sh kn lg', anarkali: 'sh ar kn lg', hanbok: 'sh ar kn lg', qipao: 'sh kn',
   kebaya: 'sh ar kn lg', balinese: 'sh ar kn lg', kimono: 'sh ar kn lg', flamenco: 'sh kn lg', thai: 'kn lg',
+  sequinjumpsuit: 'kn lg', bolero: 'sh ar',
   denim: 'sh ar', puffer: 'sh ar', raincoat: 'sh ar', cardigan: 'sh ar', dupatta: 'sh', shawl: 'sh', abaya: 'sh ar kn lg',
   headscarf: 'hr', chunni: 'hr',
 };
@@ -769,5 +793,5 @@ const THUMB = {
   scarf: '140 220 120 180', head: '110 20 180 140', necklace: '150 230 100 100', earrings: '120 140 60 60', ring: '102 474 24 24', bracelet: '96 430 44 40',
   glasses: '150 120 100 60', prop: '210 50 210 500', back: '20 140 360 340', pet: '240 560 170 230',
 };
-const THUMB_ITEM = { umbrella: '210 50 210 460', handbag: '240 440 90 100', fan: '240 390 100 100', lantern: '270 380 90 110', sparkler: '270 360 90 130', bouquet: '250 420 70 120', balloon: '250 200 100 290', wand: '270 340 110 150', carnival: '90 -40 220 200', cape: '50 220 300 570', abaya: '70 220 260 570', headscarf: '90 40 220 300', chunni: '90 40 220 380', libertycrown: '80 20 240 150', flamencoflower: '150 20 120 110', fascinator: '170 20 120 110', unicornband: '120 0 160 130', bunnyears: '120 -10 160 140', castanets: '262 460 46 50', heartpurse: '250 450 72 90', galaxy: '50 230 300 560', flamenco: '40 230 320 560', mermaid: '90 260 220 520', gown: '40 250 320 540', lehenga: '40 230 320 560' };
+const THUMB_ITEM = { umbrella: '210 50 210 460', handbag: '240 440 90 100', fan: '240 390 100 100', lantern: '270 380 90 110', sparkler: '270 360 90 130', bouquet: '250 420 70 120', balloon: '250 200 100 290', wand: '270 340 110 150', carnival: '90 -40 220 200', cape: '50 220 300 570', abaya: '70 220 260 570', headscarf: '90 40 220 300', chunni: '90 40 220 380', libertycrown: '80 20 240 150', flamencoflower: '150 20 120 110', fascinator: '170 20 120 110', unicornband: '120 0 160 130', bunnyears: '120 -10 160 140', castanets: '262 460 46 50', heartpurse: '250 450 72 90', galaxy: '50 230 300 560', sequinjumpsuit: '80 230 240 540', bolero: '90 220 220 260', flamenco: '40 230 320 560', mermaid: '90 260 220 520', gown: '40 250 320 540', lehenga: '40 230 320 560' };
 export const thumbBox = item => THUMB_ITEM[item.id] || THUMB[item.slot];

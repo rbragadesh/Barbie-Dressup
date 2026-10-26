@@ -239,7 +239,7 @@ export const COUNTRIES = [
     },
     goals: [
       { tab: 'world', text: 'Wear a sarong kebaya', icon: '👗', test: L => has(L, 'dress', 'kebaya') },
-      { tab: 'coats', text: 'It\'s hot! No coats, puffers or scarves', icon: '☀️', test: L => !['puffer', 'raincoat', 'denim', 'cardigan', 'cape'].includes(worn(L, 'outer')) && !worn(L, 'scarf') && !['beanie', 'earmuffs'].includes(worn(L, 'head')) },
+      { tab: 'coats', text: 'It\'s hot! No coats, puffers or scarves', icon: '☀️', test: L => !['puffer', 'raincoat', 'denim', 'cardigan', 'cape', 'bolero'].includes(worn(L, 'outer')) && !worn(L, 'scarf') && !['beanie', 'earmuffs'].includes(worn(L, 'head')) },
       { tab: 'shoes', text: 'Put on cool shoes: sandals or flats', icon: '👡', test: L => has(L, 'shoes', 'sandals', 'flats', 'ballet') },
     ],
     facts: [
@@ -461,7 +461,7 @@ export const COUNTRIES = [
     goals: [
       { tab: 'hats', text: 'Wear a sun hat', icon: '👒', test: L => has(L, 'head', 'sunhat') },
       { tab: 'extras', text: 'Put on sunglasses', icon: '🕶️', test: L => has(L, 'glasses', 'sunglasses', 'heartglasses', 'starglasses') },
-      { tab: 'coats', text: 'It\'s hot: no coats or scarves', icon: '☀️', test: L => !['puffer', 'raincoat', 'denim', 'cardigan', 'cape'].includes(worn(L, 'outer')) && !worn(L, 'scarf') },
+      { tab: 'coats', text: 'It\'s hot: no coats or scarves', icon: '☀️', test: L => !['puffer', 'raincoat', 'denim', 'cardigan', 'cape', 'bolero'].includes(worn(L, 'outer')) && !worn(L, 'scarf') },
     ],
     facts: [
       { emoji: '🔺', text: 'The Great Pyramid is the only one of the Seven Wonders of the Ancient World that is still standing.' },

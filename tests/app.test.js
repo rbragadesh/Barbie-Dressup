@@ -66,7 +66,7 @@ test('every dressing challenge can be completed with available items', () => {
   const challenges = COUNTRIES.flatMap(c => [[c.id, c.goals], ...(c.worship?.dress ? [[`${c.id} visit`, c.worship.dress]] : [])]);
   for (const [label, goals] of challenges) {
     const c = { id: label, goals };
-    const look = JSON.parse(JSON.stringify({ ...DEFAULT_LOOK, top: null, bottom: null, shoes: null }));
+    const look = JSON.parse(JSON.stringify({ ...DEFAULT_LOOK, top: null, bottom: null, dress: null, outer: null, shoes: null }));
     for (const g of goals) {
       if (g.test(look)) continue;
       const tries = [
@@ -182,7 +182,7 @@ test('places of worship are complete and use known beliefs and scenes', () => {
 
 test('coverage reflects what the clothes actually cover', () => {
   const w = id => freshWorn(getItem(id));
-  const base = { ...DEFAULT_LOOK, top: null, bottom: null, dress: null };
+  const base = { ...DEFAULT_LOOK, top: null, bottom: null, dress: null, outer: null, head: null };
   assert.deepEqual([...coverage({ ...base, top: w('tank'), bottom: w('shorts') })], []);
   const modest = coverage({ ...base, dress: w('maxidress'), outer: w('abaya'), head: w('headscarf') });
   for (const k of ['sh', 'ar', 'kn', 'lg', 'hr']) assert.ok(modest.has(k), `abaya + headscarf should cover ${k}`);
@@ -195,7 +195,7 @@ test('beliefs quiz always includes the right answer', () => {
 });
 
 test('fashion-show judges always score 5 to 10', () => {
-  const looks = [DEFAULT_LOOK, { ...DEFAULT_LOOK, top: null, bottom: null, shoes: null, makeup: {} }];
+  const looks = [DEFAULT_LOOK, { ...DEFAULT_LOOK, top: null, bottom: null, dress: null, outer: null, shoes: null, makeup: {} }];
   for (const item of allItems()) looks.push({ ...DEFAULT_LOOK, [item.slot]: freshWorn(item) });
   for (const t of THEMES) {
     assert.ok(t.tips.length >= 3 && t.tips.every(x => STUDIO_TABS.includes(x.tab)), `${t.id} tips`);
@@ -217,4 +217,12 @@ test('ranks, badges and the boutique', () => {
   assert.equal(buy(puppy), true);
   assert.equal(store.state.coins, 5);
   assert.equal(buy(puppy), false, 'cannot buy twice');
+});
+
+test('the default doll is the player look-alike and can be restored', () => {
+  assert.equal(DEFAULT_LOOK.hairStyle, 'crownbraids');
+  for (const slot of ['dress', 'outer', 'shoes']) assert.ok(getItem(DEFAULT_LOOK[slot].id), `${slot} item exists`);
+  const svg = renderDoll(DEFAULT_LOOK, { uid: 'me' });
+  assert.ok(svg.includes('#6d2433'), 'gap-tooth grin is drawn');
+  assert.ok(!svg.includes('NaN') && !svg.includes('undefined'));
 });

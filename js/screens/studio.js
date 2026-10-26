@@ -1,7 +1,7 @@
 // Dress-Up Studio: free play, or a country's dressing challenge when params.challenge is set.
 
 import { $, esc, pick, shade } from '../util.js';
-import { HAIR_STYLES, HAIR_COLORS, SKIN_TONES, EYE_COLORS, PATTERNS, renderItemThumb, renderHairThumb, patternSwatch, normalizeLook } from '../doll.js';
+import { HAIR_STYLES, HAIR_COLORS, SKIN_TONES, EYE_COLORS, PATTERNS, MY_LOOK, renderItemThumb, renderHairThumb, patternSwatch, normalizeLook } from '../doll.js';
 import { itemsForSlot, getItem, freshWorn, thumbBox } from '../items.js';
 import { store, isUnlocked, isOwned, trip, dollName } from '../store.js';
 import { RESPECT_LINE } from '../data/religions.js';
@@ -186,6 +186,7 @@ export default function studio(el, params = {}) {
   el.innerHTML = `${topbar(title, {
     back: ch ? '' : 'home',
     extra: `${ch ? `<button class="icon-btn back-trip" aria-label="Back to trip">⬅️</button>` : ''}
+      <button class="icon-btn like-me" aria-label="Look like me">👧<span class="lbl">Me</span></button>
       <button class="icon-btn surprise" aria-label="Surprise me">🎲<span class="lbl">Surprise</span></button>
       <button class="icon-btn clear" aria-label="Start over">🧽</button>
       <button class="icon-btn snap" aria-label="Take a photo">📸</button>`,
@@ -367,9 +368,10 @@ export default function studio(el, params = {}) {
       h += `<div class="sec-title">💋 Lipstick</div><div class="chip-row">${swatches(LIPS, m.lips, 'data-lips')}</div>`;
       h += `<div class="sec-title">✨ Eyeshadow</div><div class="chip-row">${swatches(SHADOWS, m.shadow, 'data-shadow')}</div>`;
       h += `<div class="sec-title">🌸 Blush</div><div class="chip-row">${swatches(BLUSH, m.blush, 'data-blush')}</div>`;
-      h += `<div class="sec-title">🔴 Bindi <small>from India</small></div><div class="chip-row">${chips([['', 'None', '✕'], ['dot', 'Red dot', '🔴'], ['jewel', 'Jewel', '💎'], ['drop', 'Drop', '💧'], ['star', 'Star', '⭐']], m.bindi || '', 'data-bindi')}</div>`;
+      h += `<div class="sec-title">😁 Smile</div><div class="chip-row">${chips([['grin', 'Gap-tooth grin', '😁'], ['soft', 'Sweet smile', '🙂']], m.smile === 'grin' ? 'grin' : 'soft', 'data-smile')}</div>`;
+      h += `<div class="sec-title">🔴 Bindi <small>from India</small></div><div class="chip-row">${chips([['', 'None', '✕'], ['small', 'Little black dot', '⚫'], ['dot', 'Red dot', '🔴'], ['jewel', 'Jewel', '💎'], ['drop', 'Drop', '💧'], ['star', 'Star', '⭐']], m.bindi || '', 'data-bindi')}</div>`;
       h += `<div class="sec-title">🎨 Face paint</div><div class="chip-row">${chips([['', 'None', '✕'], ['heart', 'Heart', '💗'], ['star', 'Star', '⭐'], ['flower', 'Flower', '🌸'], ['rainbow', 'Rainbow', '🌈'], ['butterfly', 'Butterfly', '🦋']], m.art || '', 'data-art')}</div>`;
-      h += `<div class="sec-title">💫 Extras</div><div class="chip-row">${chips([['lashes', 'Long lashes', '👁️'], ['glitter', 'Glitter cheeks', '✨']], '', 'data-toggle')}</div>`;
+      h += `<div class="sec-title">💫 Extras</div><div class="chip-row">${chips([['kajal', 'Kajal eyeliner', '✏️'], ['lashes', 'Long lashes', '👁️'], ['glitter', 'Glitter cheeks', '✨']], '', 'data-toggle')}</div>`;
     } else if (tab === 'nails') {
       h += `<div class="sec-title">💅 Nail salon <small>${paintAll ? 'Tap a colour to paint all nails' : 'Tap a colour, then tap a nail'}</small></div>`;
       h += `<div class="nail-hand">${handSVG(L, SKIN_TONES.find(s => s.id === L.skin).c)}</div>`;
@@ -389,7 +391,8 @@ export default function studio(el, params = {}) {
     panelEl.innerHTML = h;
     // lashes/glitter chips show on/off state
     panelEl.querySelectorAll('[data-toggle]').forEach(b => {
-      const on = b.dataset.toggle === 'lashes' ? L.makeup.lashes !== false : !!L.makeup.glitter;
+      const k = b.dataset.toggle;
+      const on = k === 'lashes' ? L.makeup.lashes !== false : !!L.makeup[k];
       b.classList.toggle('on', on);
     });
     renderColorbar();
@@ -433,6 +436,8 @@ export default function studio(el, params = {}) {
     else if ('art' in d) L.makeup.art = d.art || null;
     else if (d.toggle === 'lashes') L.makeup.lashes = L.makeup.lashes === false;
     else if (d.toggle === 'glitter') L.makeup.glitter = !L.makeup.glitter;
+    else if (d.toggle === 'kajal') L.makeup.kajal = !L.makeup.kajal;
+    else if (d.smile) L.makeup.smile = d.smile;
     else if (d.paintmode) paintAll = d.paintmode === 'all';
     else if ('nailcolor' in d) { nailColor = d.nailcolor || null; if (paintAll) L.nails = [0, 1, 2, 3, 4].map(() => nailColor); }
     else if (d.nailart) L.nailArt = d.nailart;
@@ -446,6 +451,16 @@ export default function studio(el, params = {}) {
   });
 
   // ----- Top bar tools -----
+  $('.like-me', el).addEventListener('click', () => {
+    Object.assign(L, normalizeLook(JSON.parse(JSON.stringify(MY_LOOK))));
+    active = null;
+    sfx('sparkle');
+    save();
+    happy();
+    renderPanel();
+    checkWeather();
+    bubble(stage, 'Now we look the same! Twins!');
+  });
   $('.surprise', el).addEventListener('click', () => {
     Object.assign(L, randomLook(L));
     sfx('sparkle');
