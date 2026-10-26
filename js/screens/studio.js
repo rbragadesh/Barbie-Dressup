@@ -3,7 +3,9 @@
 import { $, esc, pick, shade } from '../util.js';
 import { HAIR_STYLES, HAIR_COLORS, SKIN_TONES, EYE_COLORS, PATTERNS, renderItemThumb, renderHairThumb, patternSwatch, normalizeLook } from '../doll.js';
 import { itemsForSlot, getItem, freshWorn, thumbBox } from '../items.js';
-import { store, isUnlocked, trip, dollName } from '../store.js';
+import { store, isUnlocked, isOwned, trip, dollName } from '../store.js';
+import { RESPECT_LINE } from '../data/religions.js';
+import { getTheme } from '../data/themes.js';
 import { getCountry, COUNTRIES, displayName } from '../data/countries.js';
 import { SCENE_IDS, sceneInfo, sceneThumb } from '../scenes.js';
 import { sfx, narrate } from '../audio.js';
@@ -34,12 +36,14 @@ const TABS = [
   { id: 'jewelry', name: 'Jewellery', e: '💍', slots: ['necklace', 'earrings', 'bracelet', 'ring'] },
   { id: 'hats', name: 'Hats', e: '👑', slots: ['head'] },
   { id: 'extras', name: 'Extras', e: '👜', slots: ['prop', 'glasses', 'back'] },
+  { id: 'pets', name: 'Pets', e: '🐾', slots: ['pet'] },
 ];
 const SLOT_TITLES = {
   dress: 'Dresses', outer: 'Coats, jackets & drapes', scarf: 'Scarves', shoes: 'Shoes', socks: 'Socks & tights', necklace: 'Necklaces', earrings: 'Earrings',
-  bracelet: 'Bracelets & bangles', ring: 'Rings', head: 'Hats, crowns & hair things', prop: 'Things to hold', glasses: 'Glasses', back: 'Wings', top: 'Tops', bottom: 'Skirts, shorts & pants',
+  bracelet: 'Bracelets & bangles', ring: 'Rings', head: 'Hats, scarves, crowns & hair things', pet: 'Pets', prop: 'Things to hold', glasses: 'Glasses', back: 'Wings', top: 'Tops', bottom: 'Skirts, shorts & pants',
 };
-const NO_PATTERN = new Set(['necklace', 'earrings', 'ring', 'bracelet', 'glasses', 'shoes', 'back']);
+const NO_PATTERN = new Set(['necklace', 'earrings', 'ring', 'bracelet', 'glasses', 'shoes', 'back', 'pet']);
+const canWear = i => (!i.unlock || isUnlocked(i.id)) && (!i.price || isOwned(i.id));
 
 export function warmth(L) {
   return ['top', 'bottom', 'dress', 'outer', 'socks', 'shoes', 'scarf', 'head'].reduce((n, s) => n + ((L[s] && getItem(L[s].id)?.warmth) || 0), 0);
@@ -58,7 +62,7 @@ function randomLook(base) {
   const L = normalizeLook(base);
   const col = () => pick(PALETTE)[1];
   const worn = (slot, filter = () => true) => {
-    const it = pick(itemsForSlot(slot).filter(i => (!i.unlock || isUnlocked(i.id)) && filter(i)));
+    const it = pick(itemsForSlot(slot).filter(i => canWear(i) && filter(i)));
     const w = freshWorn(it);
     if (Math.random() < 0.6) w.color = col();
     if (!NO_PATTERN.has(slot) && Math.random() < 0.3) w.pattern = pick(PATTERNS).id;
@@ -130,12 +134,45 @@ function handSVG(L, skin) {
   return s + '</svg>';
 }
 
+// The dressing room has three goal modes: a trip outfit, a respectful visit to a place
+// of worship, and a fashion-show theme (goals there are tips, not requirements).
+function challengeFor(params) {
+  if (params.visit) {
+    const c = getCountry(params.visit);
+    const w = c.worship;
+    return {
+      kind: 'visit', title: `${c.flag} Getting ready to visit ${w.place}`, goals: w.dress, scene: w.scene, season: c.season, tab: w.dress[0].tab,
+      intro: RESPECT_LINE, doneLine: 'We are dressed respectfully. Let\'s go in quietly!', required: true, readyLabel: 'I\'m ready ✓',
+      done: () => { store.update(() => { trip(c.id).done.visitDress = true; }); go('trip', { id: c.id, step: 'visit' }); },
+      back: () => go('trip', { id: c.id, step: 'visit' }),
+    };
+  }
+  if (params.challenge) {
+    const c = getCountry(params.challenge);
+    return {
+      kind: 'trip', title: `${c.flag} Get ready for ${displayName(c)}!`, goals: c.goals, scene: c.id, season: c.season, tab: 'world',
+      intro: c.story.dress, doneLine: c.story.done, required: true, readyLabel: 'I\'m ready ✓', country: c,
+      done: () => { store.update(() => { trip(c.id).done.dress = true; }); go('trip', { id: c.id, step: 'shop' }); },
+      back: () => go('trip', { id: c.id, step: 'dress' }),
+    };
+  }
+  if (params.show) {
+    const t = getTheme(params.show);
+    return {
+      kind: 'show', title: `🎤 ${t.e} ${t.name}`, goals: t.tips, scene: 'runway', season: null, tab: t.tab || 'dresses',
+      intro: t.intro, doneLine: 'Here I go! Wish me luck!', required: false, readyLabel: 'Walk the runway 🎤',
+      done: () => go('runway', { theme: t.id }), back: () => go('show'),
+    };
+  }
+  return null;
+}
+
 export default function studio(el, params = {}) {
-  const ch = params.challenge ? getCountry(params.challenge) : null;
+  const ch = challengeFor(params);
   const L = store.state.look = normalizeLook(store.state.look);
-  let scene = ch ? ch.id : store.state.scene;
+  let scene = ch ? ch.scene : store.state.scene;
   let season = ch ? ch.season : store.state.season;
-  let tab = params.tab || (ch ? 'world' : 'dresses');
+  let tab = params.tab || (ch ? ch.tab : 'dresses');
   let active = null;
   let paintAll = true;
   let nailColor = NAIL_COLORS[0][1];
@@ -145,7 +182,7 @@ export default function studio(el, params = {}) {
   let weatherTimer = null;
   const uid = 'stage';
 
-  const title = ch ? `${ch.flag} Get ready for ${displayName(ch)}!` : `👗 ${esc(dollName())}'s Dressing Room`;
+  const title = ch ? esc(ch.title) : `👗 ${esc(dollName())}'s Dressing Room`;
   el.innerHTML = `${topbar(title, {
     back: ch ? '' : 'home',
     extra: `${ch ? `<button class="icon-btn back-trip" aria-label="Back to trip">⬅️</button>` : ''}
@@ -153,7 +190,7 @@ export default function studio(el, params = {}) {
       <button class="icon-btn clear" aria-label="Start over">🧽</button>
       <button class="icon-btn snap" aria-label="Take a photo">📸</button>`,
   })}
-  ${ch ? `<div class="challenge"><div class="goals"></div><button class="btn white hint">💡 Hint</button><button class="btn green ready" disabled>I'm ready ✓</button></div>` : ''}
+  ${ch ? `<div class="challenge"><div class="goals"></div><button class="btn white hint">💡 Hint</button><button class="btn green ready" ${ch.required ? 'disabled' : ''}>${ch.readyLabel}</button></div>` : ''}
   <div class="studio-body">
     ${stageHTML({ look: L, scene, uid })}
     <div class="panel">
@@ -166,7 +203,7 @@ export default function studio(el, params = {}) {
   const stage = $('.stage', el);
   const panelEl = $('.panel-scroll', el);
   const colorbar = $('.colorbar', el);
-  stage.insertAdjacentHTML('beforeend', `<div class="stage-tools">${ch ? '' : `<button class="pill scene-btn"><span class="e">🖼️</span>Place</button>`}<button class="pill season-btn"><span class="e"></span><span class="t"></span></button></div>`);
+  stage.insertAdjacentHTML('beforeend', `<div class="stage-tools">${ch ? '' : `<button class="pill scene-btn"><span class="e">🖼️</span>Place</button>`}<button class="pill season-btn" ${ch && !ch.season ? 'hidden' : ''}><span class="e"></span><span class="t"></span></button></div>`);
 
   const save = () => store.save();
   const redraw = (expr = 'smile') => {
@@ -181,6 +218,7 @@ export default function studio(el, params = {}) {
   const currentExpr = () => (season === 'winter' && warmth(L) < 6 ? 'cold' : 'smile');
 
   const checkWeather = () => {
+    if (ch && ch.kind !== 'trip') return;
     clearTimeout(weatherTimer);
     weatherTimer = setTimeout(() => {
       const w = weatherLine(L, season);
@@ -194,6 +232,7 @@ export default function studio(el, params = {}) {
 
   const setSeason = s => {
     season = s;
+    if (!s) { setWeather(stage, null); return; }
     if (!ch) { store.state.season = s; save(); }
     const info = SEASONS.find(x => x.id === s);
     $('.season-btn .e', el).textContent = info.emoji;
@@ -208,8 +247,9 @@ export default function studio(el, params = {}) {
     box.innerHTML = ch.goals.map((g, i) => `<div class="goal ${status[i] ? 'ok' : ''}"><span class="ck">${status[i] ? '✓' : ''}</span>${g.icon} ${esc(g.text)}</div>`).join('');
     const ready = $('.ready', el);
     const all = status.every(Boolean);
-    if (all && ready.disabled) { sfx('sparkle'); bubble(stage, 'I love it! Tap "I\'m ready" when you are done.'); }
-    ready.disabled = !all;
+    if (all && !ch.allDone) { sfx('sparkle'); bubble(stage, ch.required ? 'I love it! Tap "I\'m ready" when you are done.' : 'Wow, that matches the theme perfectly!'); }
+    ch.allDone = all;
+    if (ch.required) ready.disabled = !all;
   }
 
   if (ch) {
@@ -225,22 +265,23 @@ export default function studio(el, params = {}) {
     });
     $('.ready', el).addEventListener('click', () => {
       sfx('success');
-      confetti();
-      store.update(() => { trip(ch.id).done.dress = true; });
-      bubble(stage, ch.story.done);
+      if (ch.kind !== 'show') confetti();
+      bubble(stage, ch.doneLine);
       redraw('happy');
-      setTimeout(() => go('trip', { id: ch.id, step: 'shop' }), 2300);
+      el.querySelector('.ready').disabled = true;
+      setTimeout(ch.done, ch.kind === 'show' ? 900 : 2300);
     });
-    $('.back-trip', el).addEventListener('click', () => go('trip', { id: ch.id, step: 'dress' }));
+    $('.back-trip', el).addEventListener('click', () => ch.back());
   }
 
   // ----- Wearing items -----
   function wear(item) {
-    if (item.unlock && !isUnlocked(item.id)) {
-      const c = getCountry(item.unlock);
+    if (!canWear(item)) {
       sfx('wrong');
-      const msg = `Get your ${displayName(c)} passport stamp to unlock the ${item.name}!`;
-      toast(`🔒 ${msg}`);
+      const msg = item.price
+        ? `You can buy the ${item.name} in the Boutique for ${item.price} coins!`
+        : `Get your ${displayName(getCountry(item.unlock))} passport stamp to unlock the ${item.name}!`;
+      toast(`${item.price ? '🪙' : '🔒'} ${msg}`);
       narrate(msg);
       return;
     }
@@ -267,10 +308,10 @@ export default function studio(el, params = {}) {
   function itemButton(item) {
     const worn = L[item.slot];
     const on = worn && worn.id === item.id;
-    const locked = item.unlock && !isUnlocked(item.id);
+    const locked = !canWear(item);
     const flag = item.from ? (COUNTRIES.find(c => (item.tags || []).includes(c.id)) || {}).flag || '' : '';
     return `<button class="item-btn ${on ? 'on' : ''} ${locked ? 'locked' : ''}" data-item="${item.id}" aria-label="${esc(item.name)}">
-      ${flag ? `<span class="flagtag">${flag}</span>` : ''}${renderItemThumb(item, worn, thumbBox(item))}<span class="nm">${esc(item.name)}</span></button>`;
+      ${flag ? `<span class="flagtag">${flag}</span>` : ''}${locked && item.price ? `<span class="price-tag">🪙 ${item.price}</span>` : ''}${renderItemThumb(item, worn, thumbBox(item))}<span class="nm">${esc(item.name)}</span></button>`;
   }
 
   // ----- Colour bar -----
@@ -343,6 +384,7 @@ export default function studio(el, params = {}) {
         h += `<div class="sec-title">${tab === 'world' ? 'Outfits from around the world' : SLOT_TITLES[slot]} <small>tap again to take off</small></div><div class="grid">${items.map(itemButton).join('')}</div>`;
       }
       if (tab === 'world') h += `<p class="note">Each outfit shows the flag of the place it comes from. Tap one to hear its name!</p>`;
+      if (tab === 'pets') h += `<p class="note">Earn pets by collecting passport stamps, or buy one in the Boutique with your coins 🪙.</p>`;
     }
     panelEl.innerHTML = h;
     // lashes/glitter chips show on/off state
@@ -431,6 +473,7 @@ export default function studio(el, params = {}) {
     store.update(s => {
       s.album.unshift({ look: JSON.parse(JSON.stringify(L)), scene, season, at: Date.now() });
       s.album = s.album.slice(0, 40);
+      s.stats.photos = (s.stats.photos || 0) + 1;
     });
     toast('📸 Saved to your photo album!');
   });
@@ -459,7 +502,7 @@ export default function studio(el, params = {}) {
   if (sceneBtn) sceneBtn.addEventListener('click', () => {
     const m = modal(`<h2>🖼️ Where are we?</h2><div class="grid">${SCENE_IDS.map(id => {
       const info = sceneInfo(id);
-      const locked = info.country && !store.state.trips[info.country]?.stamp;
+      const locked = (info.country && !store.state.trips[info.country]?.stamp) || (info.visit && !store.state.trips[info.visit]?.done?.visit);
       return `<button class="item-btn ${id === scene ? 'on' : ''} ${locked ? 'locked' : ''}" data-scene="${id}" data-locked="${locked ? 1 : ''}">${sceneThumb(id)}<span class="nm">${info.emoji} ${esc(info.name)}</span></button>`;
     }).join('')}</div><p class="note">Visit a country on the World Tour to unlock its picture.</p>`);
     m.addEventListener('click', e => {
@@ -477,7 +520,7 @@ export default function studio(el, params = {}) {
 
   setSeason(season);
   showTab(tab);
-  if (ch) bubble(stage, ch.story.dress);
+  if (ch) { bubble(stage, ch.intro); ch.allDone = ch.goals.every(g => g.test(L)); renderGoals(); }
   else bubble(stage, `Hi ${store.state.kidName || 'friend'}! What should I wear today?`, { read: false });
 
   return () => { clearTimeout(exprTimer); clearTimeout(weatherTimer); };

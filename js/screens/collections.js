@@ -5,7 +5,7 @@ import { store } from '../store.js';
 import { COUNTRIES, getCountry, displayName } from '../data/countries.js';
 import { renderDoll } from '../doll.js';
 import { renderScene } from '../scenes.js';
-import { mixedMath, mathProblem, vocabSet, allWords, wordKey, flagQuiz, capitalQuiz } from '../learn.js';
+import { mixedMath, mathProblem, vocabSet, allWords, wordKey, flagQuiz, capitalQuiz, beliefsQuiz } from '../learn.js';
 import { sfx } from '../audio.js';
 import { go, topbar, modal, closeModal, toast, runQuestions, resultHTML, sayBtn } from '../ui.js';
 
@@ -79,17 +79,26 @@ export function words(el) {
 
 // ---------- Brain Games ----------
 
+const ARCADE = [
+  { go: 'show', e: '🎤', name: 'Fashion Show', sub: 'Dress to a theme, win coins' },
+  { go: 'memory', e: '🧠', name: 'Memory Match', sub: 'Flip cards, find pairs' },
+  { go: 'suitcase', e: '🧳', name: 'Suitcase Packing', sub: 'Pack for the weather' },
+  { go: 'mapquest', e: '🔎', name: 'Map Quest', sub: 'Find countries on the map' },
+];
+
 const GAMES = [
   { id: 'math', e: '🧮', name: 'Maths Gym', sub: '8 mixed problems' },
   { id: 'clock', e: '⏰', name: 'Clock Time', sub: 'Read the clock' },
   { id: 'words', e: '🔤', name: 'Word Games', sub: 'Your Word Book words' },
   { id: 'flags', e: '🏳️', name: 'Flag Match', sub: 'Whose flag is it?' },
   { id: 'capitals', e: '🏙️', name: 'Capital Cities', sub: 'Big city names' },
+  { id: 'beliefs', e: '🕊️', name: 'Beliefs Quiz', sub: 'Religions of the world' },
 ];
 
 export function practice(el) {
-  el.innerHTML = `${topbar('🧠 Brain Games')}
-    <div class="scroll"><div class="practice-tiles">${GAMES.map(g => `<button class="tile" data-go="quiz" data-param="${g.id}"><span class="e">${g.e}</span>${g.name}<small>${g.sub}</small></button>`).join('')}</div>
+  el.innerHTML = `${topbar('🎮 Games & Quizzes')}
+    <div class="scroll"><div class="sec-title">🎮 Games</div><div class="practice-tiles">${ARCADE.map(g => `<button class="tile arcade" data-go="${g.go}"><span class="e">${g.e}</span>${g.name}<small>${g.sub}</small></button>`).join('')}</div>
+    <div class="sec-title" style="margin-top:18px">🧠 Quizzes</div><div class="practice-tiles">${GAMES.map(g => `<button class="tile" data-go="quiz" data-param="${g.id}"><span class="e">${g.e}</span>${g.name}<small>${g.sub}</small></button>`).join('')}</div>
     <p class="note" style="text-align:center;margin-top:18px">Maths level: ${['', 'Easy', 'Medium', 'Hard'][store.state.settings.level]} (a grown-up can change this in ⚙️ settings).</p></div>`;
 }
 
@@ -103,12 +112,13 @@ export function quiz(el, params) {
   else if (g.id === 'clock') qs = Array.from({ length: 6 }, () => mathProblem(pool[0], level, 'clock'));
   else if (g.id === 'flags') qs = flagQuiz(COUNTRIES, 6);
   else if (g.id === 'capitals') qs = capitalQuiz(pool.length >= 4 ? pool : COUNTRIES, 6);
+  else if (g.id === 'beliefs') qs = beliefsQuiz(6);
   else {
     const learned = allWords().filter(w => store.state.words[wordKey(w.cid, w)]);
     const src = learned.length >= 4 ? learned : allWords().filter(w => getCountry(w.cid).focus);
     qs = vocabSet(shuffle(src), src.length >= 4 ? src : allWords(), 6);
   }
-  el.innerHTML = `${topbar(`${g.e} ${g.name}`, { back: params.id === 'words' ? 'words' : 'practice' })}<div class="scroll"><div style="max-width:860px;margin:0 auto" class="qbox"></div></div>`;
+  el.innerHTML = `${topbar(`${g.e} ${g.name}`, { back: { words: 'words', beliefs: 'beliefs' }[params.id] || 'practice' })}<div class="scroll"><div style="max-width:860px;margin:0 auto" class="qbox"></div></div>`;
   const box = $('.qbox', el);
   runQuestions(box, qs, {
     title: g.name,

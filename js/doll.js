@@ -396,9 +396,11 @@ export function renderDoll(look, opts = {}) {
   const parts = collectParts(L, uid, defs);
   const g = (...keys) => keys.map(k => (parts[k] || []).join('')).join('');
 
+  // A headscarf covers all the hair (and the ears, so earrings are hidden too).
+  const covered = !!(L.head && getItem(L.head.id)?.hidesHair);
   const svg = [
     g('back.back'),
-    `<g class="hair-back">${H.back}</g>`,
+    covered ? '' : `<g class="hair-back">${H.back}</g>`,
     g('outer.back', 'dress.back', 'top.back', 'head.back', 'scarf.back'),
     body(skin, L),
     g('socks.main', 'shoes.main', 'bottom.main', 'top.main', 'dress.main', 'outer.main', 'necklace.main'),
@@ -406,8 +408,9 @@ export function renderDoll(look, opts = {}) {
     g('top.sleeves', 'dress.sleeves', 'outer.sleeves', 'bracelet.main', 'ring.main', 'prop.main', 'scarf.main', 'dress.front', 'outer.front', 'top.front'),
     `<g class="face">${face(skin, L, expr, hairBase)}</g>`,
     g('head.under'),
-    `<g class="hair-front">${H.front}</g>`,
-    g('head.main', 'glasses.main', 'earrings.main', 'necklace.front', 'prop.front'),
+    covered ? '' : `<g class="hair-front">${H.front}</g>`,
+    g('head.main', 'glasses.main', ...(covered ? [] : ['earrings.main']), 'necklace.front', 'prop.front'),
+    parts['pet.main'] ? `<g transform="translate(330 776) scale(1.3) translate(-330 -776)">${g('pet.main')}</g>` : '',
     extra,
   ].join('');
   return `<svg class="doll ${cls}" viewBox="${viewBox}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Doll"><defs>${defs.join('')}</defs>${svg}</svg>`;

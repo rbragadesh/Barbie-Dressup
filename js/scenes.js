@@ -154,6 +154,136 @@ const SCENES = {
       ${Array.from({ length: 40 }, (_, i) => `<rect x="${(i * 61) % 1200}" y="${(i * 47) % 560}" width="10" height="6" fill="${['#ff4081', '#ffd740', '#69f0ae', '#40c4ff', '#e040fb'][i % 5]}" transform="rotate(${i * 37} ${(i * 61) % 1200} ${(i * 47) % 560})"/>`).join('')}`,
     floorY: 640,
   },
+  US: {
+    name: 'New York City', emoji: '🗽', country: 'US',
+    draw: () => `${sky('us', '#1a237e', '#7e57c2')}${Array.from({ length: 24 }, (_, i) => `<circle cx="${(i * 131) % 1200}" cy="${(i * 67) % 300}" r="2" fill="#fff" opacity=".7"/>`).join('')}
+      ${[[680, 260, 90], [780, 200, 70], [860, 300, 100], [970, 230, 80], [1060, 320, 140], [600, 340, 70]].map(([x, y, w]) => `<rect x="${x}" y="${y}" width="${w}" height="${640 - y}" fill="#283593"/>${Array.from({ length: 8 }, (_, k) => `<rect x="${x + 10 + (k % 3) * (w / 3.4)}" y="${y + 18 + Math.floor(k / 3) * 36}" width="10" height="14" fill="#fff59d" opacity=".75"/>`).join('')}`).join('')}
+      <path d="M780 200L815 120L850 200Z" fill="#283593"/><path d="M815 120V80" stroke="#9fa8da" stroke-width="4"/>
+      <g transform="translate(250 0)"><path d="M-60 640L-40 520H40L60 640Z" fill="#8d6e63"/><path d="M-30 520L-24 380Q0 360 24 380L30 520Z" fill="#4db6ac"/><circle cx="0" cy="350" r="22" fill="#4db6ac"/>${[-60, -30, 0, 30, 60].map(a => `<path d="M0 340L${(Math.sin(a * Math.PI / 180) * 42).toFixed(1)} ${(340 - Math.cos(a * Math.PI / 180) * 42).toFixed(1)}" stroke="#4db6ac" stroke-width="6"/>`).join('')}<path d="M18 370L40 280" stroke="#4db6ac" stroke-width="12" stroke-linecap="round"/><path d="M36 280L44 250L52 280Z" fill="#ffca28"/><rect x="-36" y="420" width="18" height="40" rx="4" fill="#26a69a"/></g>
+      ${[[200, 160, '#ff4081'], [420, 110, '#ffd740'], [560, 190, '#69f0ae'], [960, 120, '#40c4ff']].map(([x, y, c]) => Array.from({ length: 12 }, (_, k) => { const a = k * 30 * Math.PI / 180; return `<path d="M${x} ${y}L${(x + Math.cos(a) * 50).toFixed(1)} ${(y + Math.sin(a) * 50).toFixed(1)}" stroke="${c}" stroke-width="3" stroke-linecap="round"/>`; }).join('')).join('')}
+      <path d="M0 600H1200V660H0Z" fill="#3949ab"/><path d="M0 640H1200V900H0Z" fill="#9e9e9e"/><path d="M0 700H1200" stroke="#fff" stroke-width="6" stroke-dasharray="40 30"/>`,
+    floorY: 640,
+  },
+  UK: {
+    name: 'London', emoji: '💂', country: 'UK',
+    draw: () => `${sky('uk', '#90a4ae', '#cfd8dc')}${cloud(300, 110, 1.4, 0.85)}${cloud(900, 90, 1.6, 0.85)}
+      <g transform="translate(260 0)"><rect x="-40" y="200" width="80" height="440" fill="#bcaaa4"/><rect x="-46" y="300" width="92" height="92" fill="#d7ccc8"/><circle cx="0" cy="346" r="34" fill="#fffde7" stroke="#5d4037" stroke-width="5"/><path d="M0 346V322M0 346L18 352" stroke="#3e2723" stroke-width="4"/><path d="M-46 200L0 110L46 200Z" fill="#455a64"/><path d="M0 110V80" stroke="#455a64" stroke-width="5"/>${[230, 420, 470, 520, 570].map(y => `<rect x="-30" y="${y}" width="16" height="30" fill="#8d6e63"/><rect x="14" y="${y}" width="16" height="30" fill="#8d6e63"/>`).join('')}</g>
+      <rect x="760" y="430" width="300" height="210" fill="#efebe9"/>${[0, 1, 2, 3, 4, 5].map(i => `<rect x="${780 + i * 46}" y="470" width="22" height="40" fill="#90a4ae"/><rect x="${780 + i * 46}" y="540" width="22" height="40" fill="#90a4ae"/>`).join('')}<path d="M760 430H1060" stroke="#d7ccc8" stroke-width="10"/>
+      <path d="M0 640H1200V900H0Z" fill="#78909c"/>
+      <g transform="translate(860 620)"><rect x="-120" y="-120" width="240" height="120" rx="14" fill="#d32f2f"/><rect x="-110" y="-110" width="220" height="40" fill="#ffcdd2"/><rect x="-110" y="-56" width="220" height="34" fill="#ffcdd2"/><circle cx="-70" cy="0" r="18" fill="#263238"/><circle cx="70" cy="0" r="18" fill="#263238"/></g>
+      ${Array.from({ length: 30 }, (_, i) => `<path d="M${(i * 41) % 1200} ${(i * 29) % 600}l-6 18" stroke="#fff" stroke-width="2" opacity=".6"/>`).join('')}`,
+    floorY: 640,
+  },
+  ES: {
+    name: 'Sagrada Família, Spain', emoji: '💃', country: 'ES',
+    draw: () => `${sky('es', '#4fc3f7', '#fff3e0')}<circle cx="1060" cy="120" r="60" fill="#ffe066"/>${cloud(600, 110, 0.8)}
+      <g transform="translate(140 0)" fill="#d7b98e" stroke="#a1887f" stroke-width="2">${[[0, 260, 34], [60, 200, 38], [130, 150, 44], [200, 210, 38], [260, 270, 34]].map(([x, top, w]) => `<path d="M${x} 640V${top + 60}Q${x + w / 2} ${top - 40} ${x + w} ${top + 60}V640Z"/>${Array.from({ length: 6 }, (_, k) => `<circle cx="${x + w / 2}" cy="${top + 80 + k * 40}" r="5" fill="#8d6e63" stroke="none"/>`).join('')}<circle cx="${x + w / 2}" cy="${top - 8}" r="9" fill="#ffca28"/>`).join('')}<path d="M-20 480H330V640H-20Z"/></g>
+      <path d="M0 640H1200V900H0Z" fill="#e0c097"/>${[[860, 300], [960, 280], [1060, 310]].map(([x, y]) => `<path d="M${x} 640V${y}" stroke="#795548" stroke-width="10"/><circle cx="${x}" cy="${y}" r="46" fill="#66bb6a"/>${[[-20, -10], [16, 8], [-4, 20], [22, -20]].map(([dx, dy]) => `<circle cx="${x + dx}" cy="${y + dy}" r="7" fill="#ff9800"/>`).join('')}`).join('')}
+      ${[200, 330, 900, 1030].map((x, i) => `<path d="M${x} 0V${60 + (i % 2) * 30}" stroke="#555" stroke-width="1"/><ellipse cx="${x}" cy="${80 + (i % 2) * 30}" rx="18" ry="22" fill="${['#e53935', '#ffeb3b', '#4caf50', '#e53935'][i]}"/>`).join('')}`,
+    floorY: 640,
+  },
+  AE: {
+    name: 'Dubai desert', emoji: '🏙️', country: 'AE',
+    draw: () => `${sky('ae', '#4fc3f7', '#fff8e1')}<circle cx="160" cy="120" r="70" fill="#fff176"/>
+      <g transform="translate(900 0)"><path d="M-14 640L-10 120L0 30L10 120L14 640Z" fill="#b0bec5"/>${[0, 1, 2, 3, 4, 5, 6].map(i => `<path d="M${-40 + i * 4} ${640 - i * 70}L${-14 + i * 1.5} ${600 - i * 70}" stroke="#90a4ae" stroke-width="16"/><path d="M${40 - i * 4} ${640 - i * 70}L${14 - i * 1.5} ${600 - i * 70}" stroke="#90a4ae" stroke-width="16"/>`).join('')}</g>
+      ${[[700, 420, 60], [780, 470, 50], [1040, 440, 70], [1120, 500, 60]].map(([x, y, w]) => `<rect x="${x}" y="${y}" width="${w}" height="${640 - y}" fill="#90a4ae"/>`).join('')}
+      <path d="M0 560Q200 500 420 560T900 580T1200 560V900H0Z" fill="#f6c27a"/><path d="M0 640Q300 600 600 640T1200 630V900H0Z" fill="#f2b05e"/>
+      <g transform="translate(260 650)" fill="#8d6e63"><ellipse cx="0" cy="-60" rx="60" ry="30"/><ellipse cx="-8" cy="-92" rx="22" ry="18"/><path d="M50 -70Q86 -106 94 -132" stroke="#8d6e63" stroke-width="16" fill="none"/><ellipse cx="100" cy="-138" rx="18" ry="11"/>${[-44, -16, 16, 44].map(x => `<rect x="${x}" y="-40" width="10" height="64" rx="4"/>`).join('')}</g>
+      ${palm(520, 640, 0.7)}`,
+    floorY: 640,
+  },
+  TH: {
+    name: 'Grand Palace, Bangkok', emoji: '🐘', country: 'TH',
+    draw: () => `${sky('th', '#64b5f6', '#e3f2fd')}${cloud(700, 100, 0.8)}
+      <g transform="translate(240 0)"><path d="M-6 120L0 40L6 120Z" fill="#ffca28"/>${[0, 1, 2, 3, 4, 5].map(i => `<ellipse cx="0" cy="${130 + i * 34}" rx="${14 + i * 9}" ry="18" fill="#ffca28" stroke="#f9a825" stroke-width="2"/>`).join('')}<rect x="-70" y="320" width="140" height="40" fill="#ffca28"/><rect x="-80" y="360" width="160" height="280" fill="#fff8e1"/></g>
+      <g transform="translate(980 0)"><path d="M-170 420L0 300L170 420Z" fill="#c62828"/><path d="M-130 470L0 370L130 470Z" fill="#2e7d32"/><path d="M-170 420L0 300L170 420" fill="none" stroke="#ffca28" stroke-width="8"/><path d="M-130 470L0 370L130 470" fill="none" stroke="#ffca28" stroke-width="7"/><path d="M-170 420q-14-26-4-40M170 420q14-26 4-40" stroke="#ffca28" stroke-width="8" fill="none"/><rect x="-120" y="470" width="240" height="170" fill="#fff8e1"/>${[-90, -40, 10, 60].map(x => `<rect x="${x}" y="500" width="30" height="80" fill="#ffca28"/>`).join('')}</g>
+      <path d="M0 640H1200V900H0Z" fill="#e0e0e0"/>${Array.from({ length: 30 }, (_, i) => `<circle cx="${(i * 79) % 1200}" cy="${(i * 53) % 560}" r="${3 + (i % 3)}" fill="#81d4fa" opacity=".7"/>`).join('')}
+      <g transform="translate(120 780)"><rect x="-50" y="-60" width="100" height="50" rx="8" fill="#43a047"/><path d="M-60 -60H60V-74H-60Z" fill="#ffca28"/><circle cx="-34" cy="0" r="14" fill="#263238"/><circle cx="34" cy="0" r="14" fill="#263238"/><circle cx="0" cy="-4" r="14" fill="#263238"/></g>`,
+    floorY: 640,
+  },
+  gurdwara: {
+    name: 'Golden Temple, Amritsar', emoji: '🪯', visit: 'IN',
+    draw: () => `${sky('gw', '#81d4fa', '#e1f5fe')}${cloud(250, 110, 0.9)}
+      <path d="M0 470H1200V640H0Z" fill="#eceff1"/>${Array.from({ length: 13 }, (_, i) => `<path d="M${i * 100} 470V420Q${i * 100 + 25} 400 ${i * 100 + 50} 420V470Z" fill="#fafafa" stroke="#cfd8dc"/>`).join('')}
+      <path d="M0 520H1200V640H0Z" fill="#4fc3f7"/><path d="M80 540H1120" stroke="#fff" stroke-width="3" opacity=".5"/>
+      <g transform="translate(240 -130) scale(1.25)"><rect x="-90" y="400" width="180" height="140" fill="#ffca28" stroke="#f9a825" stroke-width="4"/>${[-60, -20, 20, 60].map(x => `<path d="M${x - 12} 540V470Q${x} 450 ${x + 12} 470V540Z" fill="#ffb300"/>`).join('')}<path d="M-50 400C-50 330 50 330 50 400Z" fill="#ffd54f" stroke="#f9a825" stroke-width="4"/><path d="M0 334V300" stroke="#ffca28" stroke-width="5"/>${[-80, 80].map(x => `<path d="M${x - 14} 400C${x - 14} 380 ${x + 14} 380 ${x + 14} 400Z" fill="#ffd54f"/>`).join('')}<path d="M-90 600H90" stroke="#ffca28" stroke-width="0"/></g>
+      <path d="M240 545V640" stroke="#fafafa" stroke-width="40"/><path d="M120 590Q240 610 360 590" stroke="#fff59d" stroke-width="4" fill="none" opacity=".6"/>
+      <path d="M0 640H1200V900H0Z" fill="#fafafa"/><path d="M0 700H1200M0 780H1200" stroke="#e0e0e0" stroke-width="3"/>`,
+    floorY: 640,
+  },
+  jogyesa: {
+    name: 'Jogyesa Temple, Seoul', emoji: '🏮', visit: 'KR',
+    draw: () => `${sky('jg', '#81d4fa', '#e3f2fd')}
+      <g transform="translate(330 0)"><rect x="-210" y="420" width="420" height="220" fill="#8d6e63"/>${[-170, -90, -10, 70, 150].map(x => `<rect x="${x}" y="440" width="40" height="200" fill="#a1887f"/>`).join('')}<path d="M-260 430Q0 380 260 430L230 380Q0 340 -230 380Z" fill="#37474f"/><path d="M-200 380H200V400H-200Z" fill="#2e7d32"/><path d="M-200 400H200V412H-200Z" fill="#c62828"/><path d="M-260 430q-20-10-24-30M260 430q20-10 24-30" stroke="#37474f" stroke-width="10" fill="none"/></g>
+      ${[90, 160, 230].map((y, r) => `<path d="M0 ${y}Q600 ${y + 40} 1200 ${y}" stroke="#555" stroke-width="1.5" fill="none"/>${Array.from({ length: 14 }, (_, i) => { const x = 40 + i * 85 + r * 20; const yy = y + 40 * (1 - Math.pow((x - 600) / 600, 2)) + 20; return `<path d="M${x} ${yy - 22}v4" stroke="#555"/><ellipse cx="${x}" cy="${yy}" rx="20" ry="18" fill="${['#ff80ab', '#fff176', '#80deea', '#c5e1a5', '#ce93d8'][(i + r) % 5]}"/><path d="M${x - 12} ${yy}q12 -16 24 0" stroke="#fff" stroke-width="2" fill="none" opacity=".7"/>`; }).join('')}`).join('')}
+      <path d="M0 640H1200V900H0Z" fill="#d7ccc8"/>${blossomTree(1060, 680, 1)}`,
+    floorY: 640,
+  },
+  longshan: {
+    name: 'Longshan Temple, Taipei', emoji: '🐉', visit: 'TW',
+    draw: () => `${sky('ls', '#ffcc80', '#fff3e0')}
+      <g transform="translate(600 0)"><rect x="-380" y="420" width="760" height="220" fill="#b71c1c"/>${[-320, -200, -80, 40, 160, 280].map(x => `<rect x="${x}" y="440" width="40" height="200" fill="#8e1b1b"/>`).join('')}
+        <path d="M-440 430Q0 380 440 430L400 380Q0 350 -400 380Z" fill="#e65100"/><path d="M-440 430Q-480 420 -500 360M440 430Q480 420 500 360" stroke="#e65100" stroke-width="14" fill="none"/>
+        <path d="M-160 370Q0 340 160 370L140 330Q0 310 -140 330Z" fill="#ff8f00"/><path d="M-160 370Q-200 360 -210 320M160 370Q200 360 210 320" stroke="#ff8f00" stroke-width="10" fill="none"/>
+        <path d="M-90 330q30-30 60-10t60 -10 60 10" stroke="#43a047" stroke-width="10" fill="none" stroke-linecap="round"/><circle cx="0" cy="306" r="12" fill="#ffd54f"/></g>
+      ${[160, 300, 900, 1040].map(x => `<g transform="translate(${x} 470)"><ellipse rx="26" ry="30" fill="#e53935"/><rect x="-14" y="-34" width="28" height="7" fill="#ffca28"/><rect x="-14" y="28" width="28" height="7" fill="#ffca28"/></g>`).join('')}
+      <path d="M0 640H1200V900H0Z" fill="#bcaaa4"/><g transform="translate(940 760)"><rect x="-60" y="-40" width="120" height="50" rx="6" fill="#6d4c41"/>${[-30, -10, 10, 30].map(x => `<path d="M${x} -40V-120" stroke="#8d6e63" stroke-width="3"/><circle cx="${x}" cy="-122" r="3" fill="#ff7043"/><path d="M${x} -126q-8 -20 4 -40" stroke="#cfd8dc" stroke-width="3" fill="none" opacity=".7"/>`).join('')}</g>`,
+    floorY: 640,
+  },
+  harmony: {
+    name: 'Harmony Street, Singapore', emoji: '🤝', visit: 'SG',
+    draw: () => `${sky('hm', '#81d4fa', '#fff8e1')}${cloud(600, 90, 0.8)}
+      <g transform="translate(120 0)"><rect x="-80" y="500" width="160" height="140" fill="#fff59d"/>${[0, 1, 2, 3, 4].map(i => `<rect x="${-70 + i * 10}" y="${480 - i * 50}" width="${140 - i * 20}" height="52" fill="${['#ef9a9a', '#90caf9', '#a5d6a7', '#ffcc80', '#ce93d8'][i]}" stroke="#fff" stroke-width="3"/>`).join('')}<path d="M-20 640V560Q0 540 20 560V640Z" fill="#6d4c41"/></g>
+      <g transform="translate(370 0)"><rect x="-90" y="460" width="180" height="180" fill="#e8f5e9"/><path d="M-60 460C-60 380 60 380 60 460Z" fill="#a5d6a7"/>${[-100, 100].map(x => `<rect x="${x - 12}" y="330" width="24" height="310" fill="#c8e6c9"/><path d="M${x - 16} 330L${x} 290L${x + 16} 330Z" fill="#66bb6a"/>`).join('')}<path d="M-26 640V560Q0 530 26 560V640Z" fill="#2e7d32"/></g>
+      <g transform="translate(1020 0)"><rect x="-120" y="440" width="240" height="200" fill="#c62828"/><path d="M-160 450Q0 400 160 450L140 410Q0 380 -140 410Z" fill="#ffb300"/><path d="M-120 400Q0 370 120 400L110 370Q0 350 -110 370Z" fill="#ffb300"/>${[-80, 0, 80].map(x => `<rect x="${x - 18}" y="500" width="36" height="60" fill="#ffca28"/>`).join('')}</g>
+      <path d="M0 640H1200V900H0Z" fill="#b0bec5"/><path d="M0 700H1200" stroke="#fff" stroke-width="5" stroke-dasharray="30 30"/>`,
+    floorY: 640,
+  },
+  mosque: {
+    name: 'Sheikh Zayed Grand Mosque', emoji: '🕌', visit: 'AE',
+    draw: () => `${sky('mq', '#4fc3f7', '#e1f5fe')}
+      <g transform="translate(600 0)"><rect x="-440" y="420" width="880" height="220" fill="#fafafa" stroke="#e0e0e0" stroke-width="3"/>${Array.from({ length: 11 }, (_, i) => `<path d="M${-420 + i * 80} 640V520Q${-400 + i * 80} 480 ${-380 + i * 80} 520V640Z" fill="#e3f2fd"/>`).join('')}
+        <path d="M-120 420C-120 300 120 300 120 420Z" fill="#fff" stroke="#e0e0e0" stroke-width="3"/><path d="M0 312V270" stroke="#ffca28" stroke-width="5"/><circle cx="0" cy="266" r="6" fill="#ffca28"/>
+        ${[-300, -200, 200, 300].map(x => `<path d="M${x - 50} 420C${x - 50} 350 ${x + 50} 350 ${x + 50} 420Z" fill="#fff" stroke="#e0e0e0" stroke-width="3"/><path d="M${x} 362V340" stroke="#ffca28" stroke-width="4"/>`).join('')}
+        ${[-470, 470].map(x => `<rect x="${x - 16}" y="200" width="32" height="440" fill="#fff" stroke="#e0e0e0" stroke-width="3"/><path d="M${x - 20} 200C${x - 20} 170 ${x + 20} 170 ${x + 20} 200Z" fill="#fff" stroke="#e0e0e0"/><path d="M${x} 172V150" stroke="#ffca28" stroke-width="4"/><rect x="${x - 22}" y="300" width="44" height="12" fill="#ffd54f"/>`).join('')}</g>
+      <path d="M0 640H1200V900H0Z" fill="#eceff1"/><path d="M200 660H1000V720H200Z" fill="#81d4fa" opacity=".8"/>${palm(80, 760, 0.8)}${palm(1130, 760, 0.8)}`,
+    floorY: 640,
+  },
+  cairo: {
+    name: 'Old Cairo', emoji: '🕍', visit: 'EG',
+    draw: () => `${sky('cr', '#ffcc80', '#fff3e0')}<circle cx="1080" cy="120" r="56" fill="#fff59d"/>
+      <g transform="translate(130 0)"><rect x="-90" y="440" width="180" height="200" fill="#d7ccc8"/><path d="M-60 440C-60 380 60 380 60 440Z" fill="#bcaaa4"/><rect x="70" y="240" width="30" height="400" fill="#d7ccc8"/><path d="M66 240L85 190L104 240Z" fill="#a1887f"/><rect x="64" y="320" width="42" height="10" fill="#a1887f"/></g>
+      <g transform="translate(410 0)"><rect x="-110" y="430" width="220" height="210" fill="#efebe9"/>${[-60, 60].map(x => `<rect x="${x - 26}" y="330" width="52" height="100" fill="#efebe9"/><path d="M${x - 30} 330L${x} 290L${x + 30} 330Z" fill="#8d6e63"/><path d="M${x} 290V260M${x - 10} 272H${x + 10}" stroke="#5d4037" stroke-width="4"/>`).join('')}<path d="M-30 640V560Q0 530 30 560V640Z" fill="#6d4c41"/><circle cx="0" cy="480" r="22" fill="#90caf9" stroke="#8d6e63" stroke-width="4"/></g>
+      <g transform="translate(860 0)"><rect x="-100" y="450" width="200" height="190" fill="#e0c9a6"/><path d="M-100 450L0 400L100 450Z" fill="#c9a77c"/><circle cx="0" cy="510" r="30" fill="#90caf9" stroke="#8d6e63" stroke-width="4"/><path d="M0 486L21 522H-21ZM0 534L-21 498H21Z" fill="none" stroke="#1565c0" stroke-width="3"/><path d="M-24 640V580Q0 556 24 580V640Z" fill="#6d4c41"/></g>
+      <path d="M0 640H1200V900H0Z" fill="#e6cfa7"/>${palm(1100, 720, 0.8)}`,
+    floorY: 640,
+  },
+  synagogue: {
+    name: 'Central Synagogue, New York', emoji: '✡️', visit: 'US',
+    draw: () => `${sky('sy', '#90caf9', '#e3f2fd')}${cloud(600, 100, 0.9)}
+      <g transform="translate(330 0)"><rect x="-170" y="380" width="340" height="260" fill="#c8a27a"/>${[-130, 130].map(x => `<rect x="${x - 40}" y="250" width="80" height="390" fill="#b98d64"/><path d="M${x - 44} 250C${x - 44} 190 ${x - 20} 160 ${x} 140C${x + 20} 160 ${x + 44} 190 ${x + 44} 250Z" fill="#2e7d32"/><path d="M${x} 140V112" stroke="#ffca28" stroke-width="4"/>${[290, 360, 430].map(y => `<path d="M${x - 14} ${y + 34}V${y + 10}Q${x} ${y - 4} ${x + 14} ${y + 10}V${y + 34}Z" fill="#5d4037"/>`).join('')}`).join('')}
+        <circle cx="0" cy="450" r="44" fill="#64b5f6" stroke="#8d6e63" stroke-width="6"/><path d="M0 418L28 466H-28ZM0 482L-28 434H28Z" fill="none" stroke="#fff" stroke-width="4"/><path d="M-40 640V560Q0 520 40 560V640Z" fill="#5d4037"/></g>
+      ${[[760, 300, 120], [900, 240, 110], [1030, 320, 140]].map(([x, y, w]) => `<rect x="${x}" y="${y}" width="${w}" height="${640 - y}" fill="#b0bec5"/>${Array.from({ length: 6 }, (_, k) => `<rect x="${x + 14 + (k % 3) * (w / 3.4)}" y="${y + 20 + Math.floor(k / 3) * 40}" width="14" height="20" fill="#e3f2fd"/>`).join('')}`).join('')}
+      <path d="M0 640H1200V900H0Z" fill="#9e9e9e"/>`,
+    floorY: 640,
+  },
+  abbey: {
+    name: 'Westminster Abbey, London', emoji: '⛪', visit: 'UK',
+    draw: () => `${sky('ab', '#b0bec5', '#eceff1')}${cloud(800, 100, 1.2, 0.8)}
+      <g transform="translate(340 0)" fill="#d7ccc8" stroke="#a1887f" stroke-width="2"><rect x="-160" y="380" width="320" height="260"/>${[-130, 130].map(x => `<rect x="${x - 50}" y="200" width="100" height="440"/><path d="M${x - 54} 200H${x + 54}" stroke-width="8"/>${[-40, -14, 14, 40].map(d => `<path d="M${x + d} 200V172" stroke-width="6"/>`).join('')}<path d="M${x - 20} 330V280Q${x} 256 ${x + 20} 280V330Z" fill="#78909c"/>`).join('')}
+        <circle cx="0" cy="450" r="50" fill="#90caf9"/>${Array.from({ length: 8 }, (_, i) => { const a = i * 45 * Math.PI / 180; return `<path d="M0 450L${(Math.cos(a) * 50).toFixed(1)} ${(450 + Math.sin(a) * 50).toFixed(1)}" stroke="#ef5350" stroke-width="3"/>`; }).join('')}<path d="M-46 640V560Q0 500 46 560V640Z" fill="#6d4c41"/></g>
+      <path d="M0 640H1200V900H0Z" fill="#a5d6a7"/><path d="M0 660H1200" stroke="#81c784" stroke-width="10"/>`,
+    floorY: 640,
+  },
+  runway: {
+    name: 'Fashion show', emoji: '🎤',
+    draw: () => `<rect width="1200" height="900" fill="#2a1b3d"/>${[150, 450, 750, 1050].map(x => `<path d="M${x} 0L${x - 150} 900H${x + 150}Z" fill="#fff59d" opacity=".08"/>`).join('')}
+      <path d="M0 0H220Q160 300 220 640H0Z" fill="#b71c1c"/><path d="M1200 0H980Q1040 300 980 640H1200Z" fill="#b71c1c"/><path d="M0 0H1200V60Q600 110 0 60Z" fill="#c62828"/>
+      ${Array.from({ length: 40 }, (_, i) => `<circle cx="${(i * 97) % 1200}" cy="${(i * 37) % 240 + 30}" r="${2 + (i % 3)}" fill="#fff" opacity="${0.3 + (i % 4) * 0.15}"/>`).join('')}
+      <path d="M380 640L820 640L1100 900H100Z" fill="#f8bbd0"/><path d="M380 640H820" stroke="#ff80ab" stroke-width="6"/>${[0, 1, 2, 3, 4].map(i => `<circle cx="${430 + i * 85}" cy="${700 + (i % 2) * 40}" r="5" fill="#fff" opacity=".7"/>`).join('')}
+      ${Array.from({ length: 16 }, (_, i) => `<circle cx="${(i < 8 ? 40 + i * 40 : 840 + (i - 8) * 45)}" cy="${800 + (i % 3) * 30}" r="22" fill="#1a1028"/><rect x="${(i < 8 ? 18 + i * 40 : 818 + (i - 8) * 45)}" y="${820 + (i % 3) * 30}" width="44" height="60" rx="18" fill="#1a1028"/>`).join('')}`,
+    floorY: 640,
+  },
 };
 
 export const SCENE_IDS = Object.keys(SCENES);

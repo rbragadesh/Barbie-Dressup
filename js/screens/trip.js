@@ -1,6 +1,8 @@
 // A visit to one destination: fly → arrive → dress → market maths → words → facts → passport quiz.
 
 import { $, esc, shuffle } from '../util.js';
+import { getReligion, RESPECT_LINE } from '../data/religions.js';
+import { orderGame, matchGame, religionModal } from './minigames.js';
 import { store, trip, isUnlocked } from '../store.js';
 import { getCountry, displayName } from '../data/countries.js';
 import { PINS } from '../data/worldmap.js';
@@ -8,8 +10,8 @@ import { getItem, freshWorn, thumbBox } from '../items.js';
 import { renderItemThumb } from '../doll.js';
 import { mathSet, flightProblem, vocabSet, countryQuiz, wordKey, allWords } from '../learn.js';
 import { sfx, narrate } from '../audio.js';
-import { go, topbar, stageHTML, updateDoll, bubble, setWeather, runQuestions, resultHTML, modal, closeModal, confetti, toast, sayBtn, refreshStars } from '../ui.js';
-import { mapSVG, VIEWS, project } from './map.js';
+import { go, topbar, stageHTML, updateDoll, setScene, bubble, setWeather, runQuestions, resultHTML, modal, closeModal, confetti, toast, sayBtn, refreshStars } from '../ui.js';
+import { mapSVG, VIEWS, project, regionOf } from './map.js';
 
 export const STEPS = [
   { id: 'fly', e: '✈️', name: 'Fly' },
@@ -21,11 +23,15 @@ export const STEPS = [
   { id: 'stamp', e: '🛂', name: 'Passport' },
 ];
 
-const nextStep = id => STEPS[STEPS.findIndex(s => s.id === id) + 1]?.id;
+const VISIT_STEP = { id: 'visit', e: '🕊️', name: 'Sacred place' };
+// The sacred-place step only appears for destinations that have one.
+export const stepsFor = c => (c.worship ? [...STEPS.slice(0, 5), VISIT_STEP, ...STEPS.slice(5)] : STEPS);
 
 export default function tripScreen(el, params) {
   const c = getCountry(params.id);
   const T = trip(c.id);
+  const STEPS = stepsFor(c);
+  const nextStep = id => STEPS[STEPS.findIndex(s => s.id === id) + 1]?.id;
   let step = params.step || (T.stamp ? 'arrive' : (STEPS.find(s => !T.done[s.id]) || STEPS[0]).id);
   let alive = true;
 
@@ -64,14 +70,14 @@ export default function tripScreen(el, params) {
   function fly() {
     const fromId = store.state.lastStop && store.state.lastStop !== c.id ? store.state.lastStop : null;
     const from = fromId ? getCountry(fromId) : null;
-    const inAsia = id => ['IN', 'KR', 'TW', 'SG', 'BALI', 'JP'].includes(id);
-    const view = inAsia(c.id) && (!from || inAsia(from.id)) ? VIEWS.asia : VIEWS.world;
+    const region = regionOf(c.id);
+    const view = region !== 'world' && (!from || regionOf(from.id) === region) ? VIEWS[region] : VIEWS.world;
     main.innerHTML = `<div class="card" style="padding:10px"><div class="map-wrap fly-map" style="height:clamp(150px, 24vh, 240px);flex:none">${mapSVG(view)}<div class="plane">✈️</div></div></div><div class="qbox"></div>`;
     bubble(stage, from ? `Fasten your seatbelt! We are flying from ${displayName(from)} to ${displayName(c)}!` : `Fasten your seatbelt! We are flying to ${displayName(c)}!`);
     const box = main.querySelector('.fly-map');
     const plane = main.querySelector('.plane');
     const end = PINS[c.id];
-    const start = from ? PINS[from.id] : [end[0] - (view === VIEWS.asia ? 60 : 200), end[1] + 30];
+    const start = from ? PINS[from.id] : [end[0] - (view === VIEWS.world ? 200 : 60), end[1] + 30];
     sfx('whoosh');
     const t0 = performance.now();
     const anim = now => {
@@ -187,6 +193,43 @@ export default function tripScreen(el, params) {
     show();
   }
 
+  function visit() {
+    const w = c.worship;
+    const rels = w.religions.map(getReligion);
+    main.innerHTML = `<div class="country-head"><span class="flag">${rels[0].emoji}</span><div><h2>${esc(w.place)}</h2><p>${esc(w.where)}</p></div></div>
+      <div class="memory">🕊️ <span style="flex:1">${esc(w.intro)}</span>${sayBtn(w.intro)}</div>
+      <div class="chip-row">${rels.map(r => `<button class="chip religion-chip" data-rel="${r.id}"><span class="e">${r.emoji}</span>${esc(r.name)}</button>`).join('')}</div>
+      <div class="vbox"></div>`;
+    main.querySelectorAll('.religion-chip').forEach(b => b.addEventListener('click', () => { sfx('pop'); religionModal(getReligion(b.dataset.rel)); }));
+    const box = main.querySelector('.vbox');
+    const dressed = !w.dress || T.done.visitDress;
+    if (!dressed) {
+      box.innerHTML = `<div class="card" style="text-align:center"><h2 style="margin:4px 0">Dress respectfully</h2>
+        <p class="note" style="font-size:1rem">${esc(RESPECT_LINE)}</p>
+        <ul style="text-align:left;font-weight:800;font-size:1.05rem;line-height:1.6;margin:8px auto;max-width:520px">${w.dress.map(g => `<li>${g.icon} ${esc(g.text)}</li>`).join('')}</ul>
+        <div class="actions"><button class="btn big dress-visit">👗 Get dressed for the visit</button></div></div>`;
+      bubble(stage, RESPECT_LINE);
+      box.querySelector('.dress-visit').addEventListener('click', () => go('studio', { visit: c.id }));
+      return;
+    }
+    if (!w.dress) box.innerHTML = `<div class="memory">👗 <span style="flex:1">${esc(w.note)}</span></div>`;
+    const gbox = document.createElement('div');
+    box.appendChild(gbox);
+    bubble(stage, w.game.type === 'order' ? 'What do visitors do here? Tap the steps in the right order!' : 'Can you match each place to the people who pray there?');
+    const finish = () => {
+      const first = !T.done.visit;
+      store.update(s => { T.done.visit = true; if (first) s.coins += 3; });
+      refreshStars();
+      sfx('success');
+      confetti(40);
+      gbox.insertAdjacentHTML('beforeend', `<div class="explain" style="margin-top:12px">💡 <span style="flex:1">${esc(w.fact)}</span>${sayBtn(w.fact)}</div>${nextBtn('Next')}`);
+      narrate(w.fact);
+      wireNext();
+    };
+    if (w.game.type === 'order') orderGame(gbox, w.game.steps, finish);
+    else matchGame(gbox, w.game.pairs, finish);
+  }
+
   function facts() {
     const list = shuffle(c.facts).slice(0, 4);
     let i = 0;
@@ -201,7 +244,7 @@ export default function tripScreen(el, params) {
         sfx('tap');
         if (i + 1 < list.length) { i++; show(); return; }
         markDone('facts');
-        goStep('stamp');
+        goStep(nextStep('facts'));
       });
     };
     bubble(stage, 'I know some amazing facts about this place!', { read: false });
@@ -221,7 +264,7 @@ export default function tripScreen(el, params) {
           T.done.stamp = true;
           T.stamp = true;
           T.quizBest = Math.max(T.quizBest || 0, r.correct);
-          if (first) { T.stampedOn = new Date().toISOString().slice(0, 10); s.stars += 5; }
+          if (first) { T.stampedOn = new Date().toISOString().slice(0, 10); s.stars += 5; s.coins += 10; }
         });
         refreshStars();
         sfx('stamp');
@@ -229,7 +272,7 @@ export default function tripScreen(el, params) {
         main.querySelector('.qbox').innerHTML = `<div class="card result">
           <div class="stamp new" style="--c:${c.color};width:170px"><span class="f">${c.flag}</span><span class="n">${esc(displayName(c))}</span><span class="d">${esc(T.stampedOn)}</span></div>
           <h2>${first ? 'You got the stamp!' : 'Great review!'}</h2>
-          <p>${r.correct} of ${r.total} right first time.${first ? ' +5 bonus stars ⭐' : ''}</p>
+          <p>${r.correct} of ${r.total} right first time.${first ? ' +5 stars ⭐ +10 coins 🪙' : ''}</p>
           <div class="actions"><button class="btn white snap-here">📸 Take a photo here</button><button class="btn big green done">🗺️ Back to the map</button></div></div>`;
         bubble(stage, first ? `Hooray! Our ${displayName(c)} stamp! Thank you, ${store.state.kidName || 'friend'}!` : 'We know so much about this place now!');
         main.querySelector('.done').addEventListener('click', () => go('map'));
@@ -265,10 +308,12 @@ export default function tripScreen(el, params) {
   }
 
   function render() {
+    const scene = step === 'visit' && c.worship ? c.worship.scene : c.id;
+    if (stage.dataset.scene !== scene) setScene(stage, scene);
     main.classList.remove('center');
     main.scrollTop = 0;
     renderSteps();
-    ({ fly, arrive, dress, shop, words, facts, stamp })[step]();
+    ({ fly, arrive, dress, shop, words, visit, facts, stamp })[step]();
   }
 
   render();

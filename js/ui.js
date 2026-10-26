@@ -19,7 +19,7 @@ export function go(name, params = {}) {
   const app = $('#app');
   app.innerHTML = '';
   const el = document.createElement('div');
-  el.className = `screen ${name}`;
+  el.className = `screen scr-${name}`;
   app.appendChild(el);
   current = { name, params, el, cleanup: null };
   const res = screens[name](el, params, current);
@@ -36,11 +36,13 @@ export function topbar(title, { back = 'home', extra = '' } = {}) {
     ${back ? `<button class="icon-btn" data-go="${back}" aria-label="Back">${back === 'home' ? '🏠' : '⬅️'}</button>` : ''}
     <h1>${title}</h1>${extra}
     <span class="stars-chip" aria-label="stars">⭐ <span class="star-count">${store.state.stars}</span></span>
+    <button class="stars-chip coins-chip" data-go="boutique" aria-label="coins">🪙 <span class="coin-count">${store.state.coins}</span></button>
   </header>`;
 }
 
 export function refreshStars() {
   document.querySelectorAll('.star-count').forEach(el => { el.textContent = store.state.stars; });
+  document.querySelectorAll('.coin-count').forEach(el => { el.textContent = store.state.coins; });
   document.querySelectorAll('.stars-chip').forEach(el => { el.classList.remove('bump'); void el.offsetWidth; el.classList.add('bump'); });
 }
 
@@ -182,6 +184,26 @@ export function toast(msg, ms = 2200) {
   setTimeout(() => t.remove(), ms);
 }
 
+// Non-blocking announcement that slides in at the top (new sticker, new rank, coins…).
+const banners = [];
+let bannerBusy = false;
+export function celebrate(b) {
+  banners.push(b);
+  if (!bannerBusy) nextBanner();
+}
+function nextBanner() {
+  const b = banners.shift();
+  if (!b) { bannerBusy = false; return; }
+  bannerBusy = true;
+  const el = document.createElement('div');
+  el.className = 'banner-pop';
+  el.innerHTML = `<span class="e">${b.e}</span><div><b>${esc(b.title)}</b>${b.text ? `<small>${esc(b.text)}</small>` : ''}</div>`;
+  document.body.appendChild(el);
+  sfx('unlock');
+  refreshStars();
+  setTimeout(() => { el.classList.add('out'); setTimeout(() => { el.remove(); nextBanner(); }, 400); }, 3200);
+}
+
 export function confetti(n = 70) {
   const box = document.createElement('div');
   box.className = 'confetti';
@@ -235,7 +257,13 @@ export function runQuestions(box, questions, { onDone, title = '' } = {}) {
     const fb = box.querySelector('.q-feedback');
 
     const finish = (gotIt) => {
-      if (gotIt && tries === 0) { correct++; addStars(1); refreshStars(); }
+      if (gotIt && tries === 0) {
+        correct++;
+        const stat = { math: 'math', word: 'words', spell: 'words', quiz: 'quiz' }[q.kind];
+        store.update(s => { if (stat) s.stats[stat] = (s.stats[stat] || 0) + 1; });
+        addStars(1);
+        refreshStars();
+      }
       const text = (gotIt ? pickOne(PRAISE) + ' ' : '') + (q.explain || '');
       fb.innerHTML = `<div class="explain">${gotIt ? '🎉' : '💡'} <span style="flex:1">${esc(text)}</span>${sayBtn(text)}</div>
         <div class="actions" style="display:flex;justify-content:center;margin-top:12px"><button class="btn green big next">${i + 1 < total ? 'Next ➜' : 'Finish ✓'}</button></div>`;

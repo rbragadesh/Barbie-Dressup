@@ -6,7 +6,7 @@
 import { shade } from './util.js';
 import { both, flower, star, sparkle, heart, curveThrough, fx } from './svg.js';
 
-export const WEAR_SLOTS = ['back', 'socks', 'shoes', 'bottom', 'top', 'dress', 'outer', 'scarf', 'necklace', 'bracelet', 'ring', 'prop', 'head', 'glasses', 'earrings'];
+export const WEAR_SLOTS = ['back', 'socks', 'shoes', 'bottom', 'top', 'dress', 'outer', 'scarf', 'necklace', 'bracelet', 'ring', 'prop', 'head', 'glasses', 'earrings', 'pet'];
 
 // ---------- Geometry helpers ----------
 
@@ -557,7 +557,7 @@ def('prop', 'umbrella', 'Umbrella', { color: '#4fc3f7', accent: '#ffffff', patte
     `<path d="M222 160C226 96 270 64 320 66C370 68 410 106 412 166C398 152 382 152 370 166C356 152 338 152 322 166C306 152 288 152 272 166C258 152 238 150 222 160Z" fill="${p.fill}" stroke="${p.d}" stroke-width="1.6"/>` +
     `<path d="M320 66C300 100 296 130 296 160M320 66C340 100 346 130 346 160" stroke="${p.d}" stroke-width="1.4" fill="none"/>`,
 }));
-def('prop', 'fan', 'Fan', { color: '#ff80ab', accent: '#ffffff', pattern: 'floral', warmth: 0, tags: ['KR'] }, p => ({
+def('prop', 'fan', 'Fan', { color: '#ff80ab', accent: '#ffffff', pattern: 'floral', warmth: 0, tags: ['KR', 'JP', 'ES'] }, p => ({
   main: `<path d="M284 482L250 420A70 70 0 0 1 330 404Z" fill="${p.fill}" stroke="${p.d}" stroke-width="1.6"/>` + [0, 1, 2, 3, 4].map(i => { const a = (-118 + i * 14) * Math.PI / 180; return `<path d="M284 482L${fx(284 + Math.cos(a) * 80)} ${fx(482 + Math.sin(a) * 80)}" stroke="${p.d}" stroke-width=".8"/>`; }).join('') + `<circle cx="284" cy="482" r="3" fill="${gold}"/>`,
 }));
 def('prop', 'lantern', 'Lantern', { color: '#e53935', accent: '#f2c14e', warmth: 0, tags: ['TW'] }, p => ({
@@ -586,6 +586,171 @@ def('back', 'butterflywings', 'Butterfly wings', { color: '#ffb74d', accent: '#7
   back: both(`<path d="M190 300C150 190 40 150 30 240C26 300 100 330 186 322Z" fill="${p.c}" stroke="${p.a}" stroke-width="5"/><circle cx="90" cy="240" r="14" fill="${p.a}"/><circle cx="90" cy="240" r="6" fill="#fff"/><path d="M186 330C120 340 60 410 96 450C130 480 172 410 190 350Z" fill="${p.c}" stroke="${p.a}" stroke-width="5"/>`),
 }));
 
+// ===== Modest wear and visiting clothes =====
+def('head', 'headscarf', 'Headscarf', { color: '#9575cd', accent: '#ffffff', warmth: 1, hidesHair: true, tags: ['AE', 'EG'] }, p => ({
+  back: `<path d="M126 150C118 60 282 60 274 150C282 220 294 280 304 318Q200 334 96 318C106 280 118 220 126 150Z" fill="${p.fill}" stroke="${p.d}" stroke-width="1.2"/>`,
+  main: `<path fill-rule="evenodd" d="M132 152C126 74 160 58 200 58C240 58 274 74 268 152C270 202 258 236 240 258C262 272 272 292 274 318Q200 340 126 318C128 292 138 272 160 258C142 236 130 202 132 152ZM150 142C150 104 174 90 200 90C226 90 250 104 250 142C250 178 236 202 222 212C210 218 190 218 178 212C164 202 150 178 150 142Z" fill="${p.fill}" stroke="${p.d}" stroke-width="1.4"/>` +
+    `<path d="M160 262Q200 288 240 262M146 292Q200 316 254 292M140 120Q146 96 166 84" stroke="${p.d}" stroke-width="1.4" fill="none" opacity=".6"/><circle cx="236" cy="246" r="4" fill="${p.a}" stroke="${p.d}"/>`,
+}));
+def('head', 'chunni', 'Chunni (head drape)', { color: '#ff80ab', accent: '#f2c14e', warmth: 0, tags: ['IN'] }, p => ({
+  main: `<path d="M126 180C116 90 160 56 200 56C240 56 284 90 274 180C278 260 290 330 296 400L270 404C262 330 256 260 252 190C250 120 228 94 200 94C172 94 150 120 148 190C144 260 138 330 130 404L104 400C110 330 122 260 126 180Z" fill="${p.fill}" opacity=".85" stroke="${p.d}" stroke-width="1"/>` +
+    `<path d="M148 190C150 120 172 94 200 94C228 94 250 120 252 190" stroke="${p.a}" stroke-width="3" fill="none"/>` + both(`<path d="M104 400L130 404" stroke="${p.a}" stroke-width="5"/><path d="M108 404l-2 10M116 405l-1 10M124 406l0 10" stroke="${p.a}" stroke-width="2"/>`),
+}));
+def('outer', 'abaya', 'Abaya', { color: '#24203a', accent: '#f2c14e', warmth: 1, patternable: true, tags: ['AE'] }, p => ({
+  main: outline('M172 246L134 258C124 300 126 360 128 420C124 520 110 640 96 766Q200 782 304 766C290 640 276 520 272 420C274 360 276 300 266 258L228 246Q200 262 172 246Z', p.fill, p.dd) +
+    `<path d="M200 262V774M172 246Q200 262 228 246M98 754Q200 770 302 754" stroke="${p.a}" stroke-width="3" fill="none"/>` + [320, 380, 440, 500, 560, 620, 680].map(y => `<circle cx="200" cy="${y}" r="2.6" fill="${p.a}"/>`).join(''),
+  sleeves: both(`<path d="${SLEEVE.bell}" fill="${p.fill}" stroke="${p.dd}" stroke-width="1.2"/><path d="M98 440Q118 456 141 446" stroke="${p.a}" stroke-width="3" fill="none"/>`),
+}));
+def('outer', 'shawl', 'Shawl', { color: '#ffb74d', accent: '#ffffff', warmth: 2 }, p => ({
+  front: both(`<path d="M198 252C170 248 142 254 128 268C114 290 110 330 110 374Q128 386 150 380C152 344 162 314 182 300L200 320Z" fill="${p.fill}" stroke="${p.d}" stroke-width="1.2"/><path d="M112 378l-2 9M120 382l-1 9M128 384l0 9M136 384l1 9M144 383l2 9" stroke="${p.d}" stroke-width="2"/>`) +
+    `<circle cx="200" cy="316" r="6" fill="${gold}" stroke="${goldD}"/>`,
+}));
+def('bottom', 'sarong', 'Sarong & sash', { color: '#2a7f9e', accent: '#f2c14e', pattern: 'paisley', warmth: 1, tags: ['BALI', 'TH'] }, p => ({
+  main: outline(skirt(400, 756, 78, { bulge: 12, dip: 4 }), p.fill, p.d) + `<path d="M226 420L218 756" stroke="${p.dd}" stroke-width="2"/>` +
+    `<path d="M154 392Q200 410 246 392L250 418Q200 436 150 418Z" fill="${p.a}" stroke="${p.ad}"/><path d="M242 404l16 34-12 4z" fill="${p.a}" stroke="${p.ad}"/>`,
+}));
+
+// ===== More traditional outfits =====
+def('dress', 'flamenco', 'Flamenco dress', { color: '#e53935', accent: '#ffffff', pattern: 'dots', patternColor: '#ffffff', warmth: 1, tags: ['ES', 'traditional'], from: 'Spain' }, p => {
+  const tiers = [[716, 778, 158, 86], [664, 736, 128, 112], [604, 684, 98, 158]];
+  const ruffles = tiers.map(([t, h, half, w]) => outline(skirt(t, h, half, { bulge: 6, wave: 13, dip: 2, waist: w }), p.fill, p.d, 1.2) +
+    `<path d="M${200 - half} ${h}Q200 ${h + 14} ${200 + half} ${h}" stroke="${p.a}" stroke-width="3" fill="none" opacity=".8"/>`).join('');
+  return {
+    main: ruffles + outline('M146 462C148 540 156 590 160 622L240 622C244 590 252 540 254 462Z', p.fill, p.d) + outline(bodice('scoop', 470, 3, 0, 0), p.fill, p.d) +
+      `<path d="M168 253C176 292 224 292 232 253" stroke="${p.a}" stroke-width="3" fill="none"/>`,
+    sleeves: sleeves('puff', p.fill, p.d) + both(`<path d="M113 306q6 6 12 2q6 6 12 1q6 5 12-1" stroke="${p.a}" stroke-width="2.4" fill="none"/>`),
+  };
+});
+def('dress', 'thai', 'Thai dress', { color: '#7b1fa2', accent: '#ff80ab', pattern: 'solid', warmth: 1, tags: ['TH', 'traditional'], from: 'Thailand' }, p => ({
+  back: `<path d="M244 258L272 264L288 520L262 524Z" fill="${p.a}" stroke="${shade(p.a, -0.25)}"/>`,
+  main: outline(skirt(400, 758, 72, { bulge: 8, dip: 2 }), p.fill, p.d) +
+    `<path d="M180 420L220 420L222 758L178 758Z" fill="${p.d}" opacity=".45"/>` + [188, 196, 204, 212].map(x => `<path d="M${x} 424V754" stroke="${p.dd}" stroke-width="1" opacity=".6"/>`).join('') +
+    `<path d="M128 744Q200 768 272 744" stroke="${gold}" stroke-width="9" fill="none"/>` + outline(sweetheart(402), p.fill, p.d) +
+    `<path d="M154 394Q200 404 246 394L246 410Q200 420 154 410Z" fill="${gold}" stroke="${goldD}"/><rect x="190" y="394" width="20" height="18" rx="3" fill="${gold}" stroke="${goldD}"/>`,
+  front: outline('M150 396L186 406L264 272L256 256L232 258Z', p.a, shade(p.a, -0.25)) + `<path d="M186 406L264 272M150 396L232 258" stroke="${gold}" stroke-width="3"/>` +
+    [[196, 360], [214, 330], [232, 300], [178, 372]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="2.4" fill="${gold}"/>`).join(''),
+}));
+
+// ===== Destination extras =====
+def('head', 'fascinator', 'Fascinator hat', { color: '#1f3a8a', accent: '#ff8fc8', warmth: 0, tags: ['UK'] }, p => ({
+  main: `<g transform="rotate(-15 236 92)"><path d="M232 90C228 62 238 40 254 30C244 50 242 70 242 90Z" fill="${p.a}"/><path d="M236 92C244 60 262 44 276 40C262 56 254 72 246 92Z" fill="${p.c}" opacity=".85"/><ellipse cx="236" cy="94" rx="24" ry="9" fill="${p.c}"/>` +
+    `<path d="M212 94Q218 112 236 114Q252 112 260 96" fill="none" stroke="${p.d}" stroke-dasharray="2 2"/>${flower(224, 92, p.a, '#fff', 3.4)}</g>`,
+}));
+def('head', 'libertycrown', 'Liberty crown', { color: '#7fc8a9', warmth: 0, unlock: 'US' }, p => {
+  let spikes = '';
+  for (let i = 0; i < 7; i++) {
+    const a = (-150 + i * 20) * Math.PI / 180;
+    const pt2 = r => `${fx(200 + Math.cos(a) * r)} ${fx(150 + Math.sin(a) * r)}`;
+    const side = (r, da) => `${fx(200 + Math.cos(a + da) * r)} ${fx(150 + Math.sin(a + da) * r)}`;
+    spikes += `<path d="M${side(70, -0.07)}L${pt2(122)}L${side(70, 0.07)}Z" fill="${p.c}" stroke="${shade(p.c, -0.3)}" stroke-width="1.2"/>`;
+  }
+  return { main: spikes + `<path d="M144 112Q200 82 256 112L256 98Q200 68 144 98Z" fill="${p.c}" stroke="${shade(p.c, -0.3)}" stroke-width="1.2"/>` + [170, 185, 200, 215, 230].map(x => `<circle cx="${x}" cy="${x === 200 ? 86 : 90}" r="2.6" fill="${shade(p.c, 0.5)}"/>`).join('') };
+});
+def('head', 'flamencoflower', 'Flamenco rose', { color: '#e53935', warmth: 0, tags: ['ES'] }, p => ({
+  back: `<path d="M176 74Q200 14 224 74Z" fill="#3e2723"/><path d="M188 60q12-24 24 0" stroke="#6d4c41" stroke-width="3" fill="none"/>`,
+  main: `<path d="M226 104l-14 10 6-14zM252 104l14 8-14 0z" fill="#43a047"/><circle cx="240" cy="96" r="15" fill="${p.c}"/><circle cx="240" cy="96" r="10" fill="${shade(p.c, -0.15)}"/><path d="M234 96a6 6 0 1 1 6 6a3 3 0 1 1-3-3" stroke="${shade(p.c, -0.4)}" stroke-width="1.6" fill="none"/>`,
+}));
+def('prop', 'castanets', 'Castanets', { color: '#6d4c41', accent: '#e53935', warmth: 0, unlock: 'ES' }, p => ({
+  main: `<path d="M282 478q-6-10 4-14q10 2 6 14" stroke="${p.a}" stroke-width="2" fill="none"/><ellipse cx="282" cy="490" rx="10" ry="12" fill="${p.c}"/><ellipse cx="294" cy="494" rx="10" ry="12" fill="${shade(p.c, 0.15)}"/><ellipse cx="292" cy="490" rx="4" ry="5" fill="${shade(p.c, 0.35)}" opacity=".5"/>`,
+}));
+
+// ===== Boutique (bought with coins) =====
+def('head', 'unicornband', 'Unicorn headband', { color: '#ffffff', accent: '#f2c14e', warmth: 0, price: 25 }, p => ({
+  main: `<path d="M140 120C140 76 170 60 200 60C230 60 260 76 260 120" stroke="#ff9ec7" stroke-width="7" fill="none" stroke-linecap="round"/>` + both(`<path d="M158 82L150 54L176 72Z" fill="${p.c}" stroke="#e0c6d6" stroke-width="1.5"/><path d="M160 76L156 62L170 72Z" fill="#ffc6e0"/>`) +
+    `<path d="M190 66L200 14L210 66Z" fill="${p.a}" stroke="${shade(p.a, -0.3)}" stroke-width="1.2"/><path d="M193 54l14-4M195 42l10-3M197 30l6-2" stroke="${shade(p.a, -0.3)}" stroke-width="1.4"/>` + flower(178, 68, '#b39ddb', '#fff59d', 4) + flower(222, 68, '#80deea', '#fff59d', 4),
+}));
+def('head', 'bunnyears', 'Bunny ears', { color: '#ffffff', accent: '#ffb3d1', warmth: 0, price: 20 }, p => ({
+  main: `<path d="M140 120C140 76 170 60 200 60C230 60 260 76 260 120" stroke="${shade(p.c, -0.1)}" stroke-width="6" fill="none"/>` +
+    both(`<ellipse cx="176" cy="34" rx="12" ry="34" fill="${p.c}" stroke="#ddd" transform="rotate(-12 176 34)"/><ellipse cx="176" cy="38" rx="6" ry="24" fill="${p.a}" transform="rotate(-12 176 38)"/>`),
+}));
+def('dress', 'galaxy', 'Galaxy gown', { color: '#2c2a6b', accent: '#b388ff', pattern: 'stars', patternColor: '#fff59d', warmth: 1, price: 40 }, p => ({
+  main: outline(skirt(396, 768, 132, { bulge: 40, wave: 22, dip: 4 }), p.fill, p.dd) + folds(404, 768, 132, 8, p.l, 1.2, 44) + outline(bodice('v', 402, 3, 0), p.fill, p.dd) +
+    `<path d="M159 394Q200 404 241 394L242 406Q200 416 158 406Z" fill="${p.a}"/>` + star(200, 400, 8, '#fff59d'),
+  sleeves: sleeves('puff', p.fill, p.dd),
+}));
+def('shoes', 'glassslippers', 'Glass slippers', { color: '#d6f0ff', warmth: 0, price: 25 }, p => ({
+  main: footShoe('M166 752C163 760 164 768 171 771C178 773 187 772 190 768C192 762 191 756 189 751Q178 758 166 752Z', p.c, '#90caf9', `<path d="M168 754Q178 762 188 754" stroke="#fff" stroke-width="2" fill="none"/>` + sparkle(182, 762, 4, '#fff')),
+}));
+def('prop', 'heartpurse', 'Heart purse', { color: '#ff4f8b', warmth: 0, price: 15 }, p => ({
+  main: `<path d="M276 480Q286 456 296 480" stroke="${p.d}" stroke-width="3" fill="none"/>` + heart(286, 506, 22, p.c, `stroke="${p.d}" stroke-width="1.6"`) + `<circle cx="286" cy="496" r="3" fill="${gold}"/>`,
+}));
+
+// ===== Pets (stand by the doll's feet) =====
+const eyes2 = (x1, x2, y, r = 2.6) => [x1, x2].map(x => `<circle cx="${x}" cy="${y}" r="${r}" fill="#222"/><circle cx="${x + 0.9}" cy="${y - 0.9}" r="${r * 0.35}" fill="#fff"/>`).join('');
+const dog = (p, pointy) => ({
+  main: `<path d="M360 736q14-6 12-22" stroke="${p.c}" stroke-width="${pointy ? 10 : 6}" fill="none" stroke-linecap="round"/>` +
+    [304, 318, 340, 354].map(x => `<rect x="${x}" y="752" width="9" height="20" rx="4.5" fill="${p.c}"/><ellipse cx="${x + 4.5}" cy="772" rx="5.5" ry="3.4" fill="${p.a}"/>`).join('') +
+    `<ellipse cx="332" cy="744" rx="34" ry="19" fill="${p.c}"/><ellipse cx="310" cy="748" rx="13" ry="14" fill="${p.a}"/>` +
+    (pointy ? `<path d="M290 704L286 680L302 696ZM318 704L324 680L310 696Z" fill="${p.c}"/><path d="M291 700L289 688L298 697ZM317 700L320 688L313 697Z" fill="#ffb3c6"/>` : '') +
+    `<circle cx="304" cy="716" r="20" fill="${p.c}"/><ellipse cx="302" cy="726" rx="11" ry="8" fill="${p.a}"/>` +
+    (pointy ? '' : `<ellipse cx="286" cy="718" rx="6" ry="13" fill="${p.d}" transform="rotate(15 286 718)"/><ellipse cx="322" cy="718" rx="6" ry="13" fill="${p.d}" transform="rotate(-15 322 718)"/>`) +
+    eyes2(296, 312, 712) + `<ellipse cx="303" cy="720" rx="3.6" ry="2.6" fill="#333"/><path d="M299 726q4 4 8 0" stroke="#333" stroke-width="1.2" fill="none"/><path d="M302 728q2 6 4 0" fill="#ff7a9a"/><path d="M290 734Q304 742 318 734" stroke="#e53935" stroke-width="4" fill="none"/><circle cx="304" cy="740" r="3" fill="${gold}"/>`,
+});
+def('pet', 'corgi', 'Corgi', { color: '#e8984a', accent: '#ffffff', warmth: 0, unlock: 'UK', patternable: false }, p => dog(p, true));
+def('pet', 'puppy', 'Puppy', { color: '#a1704b', accent: '#fff3e0', warmth: 0, price: 30, patternable: false }, p => dog(p, false));
+def('pet', 'kitten', 'Kitten', { color: '#b0bec5', accent: '#ffffff', warmth: 0, price: 30, patternable: false }, p => ({
+  main: `<path d="M346 766C372 762 376 730 360 724" stroke="${p.c}" stroke-width="7" fill="none" stroke-linecap="round"/>` +
+    `<path d="M308 774C294 772 294 742 310 730C326 720 348 730 350 752C352 770 344 774 330 774Z" fill="${p.c}"/><ellipse cx="322" cy="758" rx="12" ry="14" fill="${p.a}"/>` +
+    `<path d="M304 700L300 678L316 692ZM334 700L340 678L324 692Z" fill="${p.c}"/><path d="M305 696L303 684L312 692ZM333 696L336 684L328 692Z" fill="#ffb3c6"/>` +
+    `<circle cx="320" cy="710" r="18" fill="${p.c}"/><path d="M316 694v6M320 693v7M324 694v6" stroke="${p.d}" stroke-width="1.6"/>` +
+    [[313, 708], [327, 708]].map(([x, y]) => `<ellipse cx="${x}" cy="${y}" rx="2.6" ry="3.6" fill="#43a047"/><ellipse cx="${x}" cy="${y}" rx="1" ry="2.6" fill="#111"/>`).join('') +
+    `<path d="M318 716l2 2 2-2z" fill="#ff7a9a"/><path d="M296 716h12M296 720l12-2M332 716h12M332 718l12 2" stroke="#666" stroke-width=".8"/>`,
+}));
+def('pet', 'bunny', 'Bunny', { color: '#ffffff', accent: '#ffb3c6', warmth: 0, price: 30, patternable: false }, p => ({
+  main: `<circle cx="356" cy="752" r="8" fill="#fff" stroke="#eee"/><ellipse cx="332" cy="750" rx="26" ry="22" fill="${p.c}" stroke="#eee"/>` +
+    `<ellipse cx="310" cy="690" rx="6" ry="20" fill="${p.c}" stroke="#eee" transform="rotate(-10 310 690)"/><ellipse cx="310" cy="692" rx="3" ry="14" fill="${p.a}" transform="rotate(-10 310 692)"/>` +
+    `<ellipse cx="328" cy="688" rx="6" ry="20" fill="${p.c}" stroke="#eee" transform="rotate(10 328 688)"/><ellipse cx="328" cy="690" rx="3" ry="14" fill="${p.a}" transform="rotate(10 328 690)"/>` +
+    `<circle cx="318" cy="718" r="17" fill="${p.c}" stroke="#eee"/>` + eyes2(311, 325, 715, 2.4) + `<path d="M316 722l2 2 2-2z" fill="${p.a}"/><ellipse cx="318" cy="770" rx="10" ry="4" fill="${p.c}" stroke="#eee"/>`,
+}));
+def('pet', 'unicorn', 'Unicorn plush', { color: '#ffffff', accent: '#f2c14e', warmth: 0, price: 50, patternable: false }, p => {
+  const mane = ['#ff8fb1', '#ffd54f', '#81d4fa', '#b39ddb'];
+  return {
+    main: `<path d="M362 738q16 6 12 26" stroke="#b39ddb" stroke-width="8" fill="none" stroke-linecap="round"/>` + [306, 318, 342, 354].map(x => `<rect x="${x}" y="748" width="9" height="24" rx="4.5" fill="${p.c}" stroke="#e8e0f0"/><rect x="${x}" y="766" width="9" height="6" rx="2" fill="#f8bbd0"/>`).join('') +
+      `<ellipse cx="332" cy="744" rx="32" ry="18" fill="${p.c}" stroke="#e8e0f0"/><path d="M308 734L302 708L318 704L324 734Z" fill="${p.c}" stroke="#e8e0f0"/>` +
+      `<ellipse cx="302" cy="702" rx="16" ry="12" fill="${p.c}" stroke="#e8e0f0" transform="rotate(-20 302 702)"/>` + mane.map((c, i) => `<circle cx="${318 + i * 3}" cy="${694 + i * 9}" r="6" fill="${c}"/>`).join('') +
+      `<path d="M300 690L306 664L312 690Z" fill="${p.a}"/><circle cx="296" cy="700" r="2.4" fill="#222"/><ellipse cx="290" cy="708" rx="4" ry="3" fill="#ffc6e0"/>`,
+  };
+});
+def('pet', 'falcon', 'Falcon', { color: '#8d6e63', accent: '#fff3e0', warmth: 0, unlock: 'AE', patternable: false }, p => ({
+  main: `<rect x="326" y="690" width="8" height="82" fill="#6d4c41"/><rect x="306" y="768" width="48" height="8" rx="3" fill="#5d4037"/><rect x="304" y="686" width="52" height="7" rx="3" fill="#795548"/>` +
+    `<path d="M322 682L316 700L330 700L326 682ZM336 682L332 700L344 700L340 682Z" fill="${p.d}"/>` +
+    `<ellipse cx="330" cy="654" rx="17" ry="28" fill="${p.c}"/><ellipse cx="330" cy="660" rx="10" ry="20" fill="${p.a}"/>` + [[326, 652], [334, 660], [327, 668], [333, 646]].map(([x, y]) => `<path d="M${x - 2} ${y}l2 3 2-3" stroke="${p.d}" stroke-width="1.2" fill="none"/>`).join('') +
+    `<path d="M314 640C306 670 312 690 320 698L318 650Z" fill="${p.d}"/><path d="M346 640C354 670 348 690 340 698L342 650Z" fill="${p.d}"/>` +
+    `<circle cx="330" cy="624" r="13" fill="${p.c}"/><path d="M322 620Q330 612 338 620Q330 618 322 620Z" fill="${p.d}"/><circle cx="325" cy="623" r="2.4" fill="#222"/><circle cx="335" cy="623" r="2.4" fill="#222"/>` +
+    `<path d="M327 628L333 628L330 636Z" fill="#ffca28" stroke="#5d4037" stroke-width=".8"/><path d="M322 686h6M334 686h6" stroke="#ffca28" stroke-width="3" stroke-linecap="round"/>`,
+}));
+def('pet', 'elephant', 'Baby elephant', { color: '#9e9e9e', accent: '#e53935', warmth: 0, unlock: 'TH', patternable: false }, p => ({
+  main: [306, 320, 344, 358].map(x => `<rect x="${x}" y="748" width="12" height="24" rx="5" fill="${p.c}"/>`).join('') +
+    `<ellipse cx="336" cy="736" rx="36" ry="26" fill="${p.c}"/><path d="M322 712H354L358 740H318Z" fill="${p.a}"/><path d="M318 740H358" stroke="${gold}" stroke-width="3"/><path d="M322 712H354" stroke="${gold}" stroke-width="3"/>` +
+    `<path d="M290 732C276 728 270 712 276 700" stroke="${p.c}" stroke-width="10" fill="none" stroke-linecap="round"/><circle cx="302" cy="720" r="20" fill="${p.c}"/>` +
+    `<ellipse cx="316" cy="720" rx="13" ry="17" fill="${shade(p.c, -0.1)}"/><ellipse cx="316" cy="720" rx="8" ry="11" fill="#f8bbd0" opacity=".6"/>` + eyes2(296, 296, 714, 2.4) + `<path d="M290 734q-4 4-8 2" stroke="#fff" stroke-width="3" stroke-linecap="round"/>`,
+}));
+
+// ---------- Coverage (for visiting places of worship) ----------
+
+// sh = shoulders, ar = arms to the wrist, kn = knees, lg = legs to the ankle, hr = hair.
+const COVER = {
+  tee: 'sh', blouse: 'sh', sweater: 'sh ar', hoodie: 'sh ar', kurti: 'sh', breton: 'sh',
+  maxi: 'kn lg', jeans: 'kn lg', leggings: 'kn lg', sarong: 'kn lg',
+  gown: 'kn lg', mermaid: 'kn lg', maxidress: 'sh kn lg', galaxy: 'sh kn lg',
+  saree: 'sh kn lg', lehenga: 'sh kn lg', pavadai: 'sh kn lg', anarkali: 'sh ar kn lg', hanbok: 'sh ar kn lg', qipao: 'sh kn',
+  kebaya: 'sh ar kn lg', balinese: 'sh ar kn lg', kimono: 'sh ar kn lg', flamenco: 'sh kn lg', thai: 'kn lg',
+  denim: 'sh ar', puffer: 'sh ar', raincoat: 'sh ar', cardigan: 'sh ar', dupatta: 'sh', shawl: 'sh', abaya: 'sh ar kn lg',
+  headscarf: 'hr', chunni: 'hr',
+};
+for (const item of ITEMS) item.cover = (COVER[item.id] || '').split(' ').filter(Boolean);
+
+export function coverage(L) {
+  const c = new Set();
+  for (const slot of ['top', 'bottom', 'dress', 'outer', 'head']) {
+    const item = L[slot] && getItem(L[slot].id);
+    if (item) item.cover.forEach(t => c.add(t));
+  }
+  if (c.has('ar')) c.add('sh');
+  if (c.has('lg')) c.add('kn');
+  return c;
+}
+
 // ---------- Lookups ----------
 
 const BY_ID = new Map(ITEMS.map(i => [i.id, i]));
@@ -602,7 +767,7 @@ export function freshWorn(item) {
 const THUMB = {
   top: '100 230 200 220', bottom: '90 380 220 380', dress: '40 220 320 560', outer: '80 210 240 420', socks: '140 580 120 200', shoes: '150 630 100 150',
   scarf: '140 220 120 180', head: '110 20 180 140', necklace: '150 230 100 100', earrings: '120 140 60 60', ring: '102 474 24 24', bracelet: '96 430 44 40',
-  glasses: '150 120 100 60', prop: '210 50 210 500', back: '20 140 360 340',
+  glasses: '150 120 100 60', prop: '210 50 210 500', back: '20 140 360 340', pet: '240 560 170 230',
 };
-const THUMB_ITEM = { umbrella: '210 50 210 460', handbag: '240 440 90 100', fan: '240 390 100 100', lantern: '270 380 90 110', sparkler: '270 360 90 130', bouquet: '250 420 70 120', balloon: '250 200 100 290', wand: '270 340 110 150', carnival: '90 -40 220 200', cape: '50 220 300 570', mermaid: '90 260 220 520', gown: '40 250 320 540', lehenga: '40 230 320 560' };
+const THUMB_ITEM = { umbrella: '210 50 210 460', handbag: '240 440 90 100', fan: '240 390 100 100', lantern: '270 380 90 110', sparkler: '270 360 90 130', bouquet: '250 420 70 120', balloon: '250 200 100 290', wand: '270 340 110 150', carnival: '90 -40 220 200', cape: '50 220 300 570', abaya: '70 220 260 570', headscarf: '90 40 220 300', chunni: '90 40 220 380', libertycrown: '80 20 240 150', flamencoflower: '150 20 120 110', fascinator: '170 20 120 110', unicornband: '120 0 160 130', bunnyears: '120 -10 160 140', castanets: '262 460 46 50', heartpurse: '250 450 72 90', galaxy: '50 230 300 560', flamenco: '40 230 320 560', mermaid: '90 260 220 520', gown: '40 250 320 540', lehenga: '40 230 320 560' };
 export const thumbBox = item => THUMB_ITEM[item.id] || THUMB[item.slot];

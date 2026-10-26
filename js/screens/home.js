@@ -2,10 +2,11 @@
 
 import { $, esc } from '../util.js';
 import { store, dollName } from '../store.js';
+import { rankInfo, giftReady, openGift } from '../game.js';
 import { COUNTRIES } from '../data/countries.js';
 import { allItems } from '../items.js';
 import { sfx, speak, unlockAudio, englishVoices, canSpeak } from '../audio.js';
-import { go, topbar, stageHTML, bubble, setWeather, parentGate, modal, closeModal, toast } from '../ui.js';
+import { go, topbar, stageHTML, bubble, setWeather, parentGate, modal, closeModal, toast, confetti, refreshStars } from '../ui.js';
 
 const DOLL_NAMES = ['Maya', 'Priya', 'Mina', 'Lily', 'Aria', 'Sara', 'Ananya', 'Jia', 'Dewi', 'Rose'];
 
@@ -13,26 +14,41 @@ export function home(el) {
   const st = store.state;
   const stamps = COUNTRIES.filter(c => st.trips[c.id]?.stamp).length;
   const words = Object.keys(st.words).length;
-  el.innerHTML = `${topbar('', { back: '', extra: `<button class="icon-btn" data-act="settings" aria-label="Grown-up settings">⚙️</button>` })}
+  const r = rankInfo();
+  el.innerHTML = `${topbar('', { back: '', extra: `${giftReady() ? '<button class="icon-btn gift" aria-label="Daily gift">🎁<span class="lbl">Gift!</span></button>' : ''}<button class="icon-btn" data-act="settings" aria-label="Grown-up settings">⚙️</button>` })}
   <div class="home-body">
     ${stageHTML({ scene: st.scene, uid: 'home' })}
     <div class="home-menu">
       <div class="title-art"><h1>Dress-Up World Tour</h1><p>Dress up ${esc(dollName())}, travel the world, learn as you go!</p></div>
+      <button class="rank-strip" data-go="stickers"><span class="rank-e">${r.rank.e}</span><span class="rank-t"><b>${esc(r.rank.name)}</b><span class="bar"><i style="width:${Math.round(r.progress * 100)}%"></i></span><small>${r.next ? `${r.toNext} ⭐ to ${esc(r.next.name)}` : 'Top rank!'} · 🏅 ${st.badges.length} stickers</small></span></button>
       <div class="tiles">
         <button class="tile hero" data-go="map"><span class="e">✈️</span>World Tour<small>${stamps} of ${COUNTRIES.length} passport stamps</small></button>
         <button class="tile hero alt" data-go="studio"><span class="e">👗</span>Dressing Room<small>Hair, makeup, nails & outfits</small></button>
-        <button class="tile" data-go="passport"><span class="e">🛂</span>My Passport</button>
+        <button class="tile" data-go="show"><span class="e">🎤</span>Fashion Show</button>
+        <button class="tile" data-go="boutique"><span class="e">🛍️</span>Boutique<small>🪙 ${st.coins}</small></button>
+        <button class="tile" data-go="passport"><span class="e">🛂</span>Passport</button>
+        <button class="tile" data-go="beliefs"><span class="e">🕊️</span>World Beliefs</button>
         <button class="tile" data-go="words"><span class="e">📖</span>Word Book<small>${words} words</small></button>
-        <button class="tile" data-go="practice"><span class="e">🧠</span>Brain Games</button>
+        <button class="tile" data-go="practice"><span class="e">🎮</span>Games & Quizzes</button>
+        <button class="tile" data-go="stickers"><span class="e">🏅</span>Stickers</button>
         <button class="tile" data-go="album"><span class="e">📸</span>Photo Album<small>${st.album.length} photos</small></button>
       </div>
     </div>
   </div>`;
   const stage = $('.stage', el);
   setWeather(stage, st.season);
-  const hello = st.kidName ? `Hi ${st.kidName}! Where shall we go today?` : 'Hi! Where shall we go today?';
+  const hello = giftReady() ? 'Look, a surprise gift is waiting for you! Tap the present!' : st.kidName ? `Hi ${st.kidName}! Where shall we go today?` : 'Hi! Where shall we go today?';
   bubble(stage, hello, { read: false });
   el.querySelector('[data-act="settings"]').addEventListener('click', () => { sfx('tap'); parentGate(() => go('settings')); });
+  el.querySelector('.gift')?.addEventListener('click', e => {
+    const coins = openGift();
+    sfx('unlock');
+    confetti();
+    refreshStars();
+    e.currentTarget.remove();
+    modal(`<div class="result"><div class="stars-big gift-open">🎁</div><h2>Surprise! +${coins} coins 🪙</h2><p>Come back tomorrow for another gift.</p><div class="actions"><button class="btn big green" data-close>Yay!</button></div></div>`);
+    speak(`Surprise! You got ${coins} coins!`);
+  });
 }
 
 export function welcome(el) {

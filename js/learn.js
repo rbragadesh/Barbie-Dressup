@@ -4,6 +4,7 @@
 
 import { rand, pick, shuffle, fmtNum, esc } from './util.js';
 import { COUNTRIES, getCountry, displayName } from './data/countries.js';
+import { RELIGIONS } from './data/religions.js';
 
 // ---------- Money ----------
 
@@ -350,6 +351,12 @@ export function vocabSet(words, pool, n = 4) {
 
 // ---------- Passport quiz ----------
 
+// The answer plus `n` different wrong answers (the pool may contain duplicates).
+function uniqueChoices(answer, pool, n = 3) {
+  const seen = new Set([answer]);
+  return [answer, ...shuffle(pool).filter(x => !seen.has(x) && seen.add(x)).slice(0, n)];
+}
+
 const LANG_POOL = ['French', 'Portuguese', 'Japanese', 'Arabic', 'Korean', 'Hindi', 'Spanish', 'German', 'Russian', 'Italian', 'Swahili', 'Dutch'];
 
 export function countryQuiz(c) {
@@ -372,7 +379,7 @@ export function countryQuiz(c) {
   }
   qs.push({
     kind: 'quiz', topic: 'Money', prompt: `What money do people use in ${displayName(c)}?`,
-    choices: shuffle([c.currency.name, ...shuffle(others.filter(o => o.currency.name !== c.currency.name).map(o => o.currency.name)).slice(0, 3)]).map(x => ({ label: x, value: x })), answer: c.currency.name,
+    choices: shuffle(uniqueChoices(c.currency.name, others.map(o => o.currency.name))).map(x => ({ label: x, value: x })), answer: c.currency.name,
     explain: `In ${displayName(c)} people pay with the ${c.currency.name} (${c.currency.symbol}).`,
   });
   const lang = c.languages[0];
@@ -388,7 +395,7 @@ export function countryQuiz(c) {
   });
   qs.push({
     kind: 'quiz', topic: 'Hello', prompt: `How do you say hello in ${displayName(c)}?`,
-    choices: shuffle([c.greeting.text, ...shuffle(others.map(o => o.greeting.text).filter(g => g !== c.greeting.text)).slice(0, 3)]).map(x => ({ label: x, value: x })), answer: c.greeting.text,
+    choices: shuffle(uniqueChoices(c.greeting.text, others.map(o => o.greeting.text))).map(x => ({ label: x, value: x })), answer: c.greeting.text,
     explain: `${c.greeting.text} (${c.greeting.native}) means ${c.greeting.meaning.toLowerCase()}.`,
   });
   qs.push({
@@ -411,3 +418,31 @@ export function capitalQuiz(countries, n = 6) {
 }
 
 export { getCountry };
+
+// ---------- World beliefs quiz ----------
+
+
+
+export function beliefsQuiz(n = 6) {
+  const qs = [];
+  for (const r of shuffle(RELIGIONS)) {
+    const kinds = shuffle(['place', 'symbol', 'festival', r.id === 'shinto' ? 'symbol' : 'book']);
+    const k = kinds[0];
+    if (k === 'place') {
+      qs.push({ kind: 'quiz', topic: 'Beliefs', prompt: `Where do ${r.people} go to pray?`, choices: shuffle(uniqueChoices(r.place, RELIGIONS.map(o => o.place))).map(x => ({ label: x, value: x })), answer: r.place, explain: `${r.people} pray at a ${r.place.toLowerCase()}. ${r.visit}` });
+    } else if (k === 'symbol') {
+      qs.push({ kind: 'quiz', topic: 'Beliefs', prompt: `Which symbol is used for ${r.name}?`, choices: shuffle(uniqueChoices(r.emoji, RELIGIONS.map(o => o.emoji))).map(x => ({ label: x, value: x, big: true })), answer: r.emoji, explain: `${r.emoji} is a symbol of ${r.name}. ${r.idea}` });
+    } else if (k === 'festival') {
+      const f = r.festivals[0];
+      qs.push({ kind: 'quiz', topic: 'Beliefs', prompt: `Which festival do many ${r.people} celebrate?`, choices: shuffle(uniqueChoices(f, RELIGIONS.map(o => o.festivals[0]))).map(x => ({ label: x, value: x })), answer: f, explain: `${r.people} celebrate ${r.festivals.join(', ')}.` });
+    } else {
+      qs.push({ kind: 'quiz', topic: 'Beliefs', prompt: `What is the holy book of ${r.name}?`, choices: shuffle(uniqueChoices(r.book, RELIGIONS.filter(o => o.id !== 'shinto').map(o => o.book))).map(x => ({ label: x, value: x })), answer: r.book, explain: `The holy book of ${r.name} is ${r.book}.` });
+    }
+  }
+  qs.push({
+    kind: 'quiz', topic: 'Being a kind visitor', prompt: 'What do visitors do before going into a mosque, a gurdwara or a Hindu temple?',
+    choices: shuffle(['Take off their shoes', 'Put on roller skates', 'Bring a balloon', 'Shout hello']).map(x => ({ label: x, value: x })), answer: 'Take off their shoes',
+    explain: 'Taking your shoes off keeps the special place clean and shows respect.',
+  });
+  return shuffle(qs).slice(0, n);
+}

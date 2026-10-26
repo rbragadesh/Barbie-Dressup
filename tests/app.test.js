@@ -11,7 +11,7 @@ import { mathProblem, mathSet, flightProblem, vocabQuestion, vocabSet, countryQu
 import { SCENE_IDS, renderScene } from '../js/scenes.js';
 import { PINS } from '../js/data/worldmap.js';
 
-const STUDIO_TABS = ['hair', 'face', 'nails', 'dresses', 'world', 'tops', 'bottoms', 'coats', 'shoes', 'jewelry', 'hats', 'extras'];
+const STUDIO_TABS = ['hair', 'face', 'nails', 'dresses', 'world', 'tops', 'bottoms', 'coats', 'shoes', 'jewelry', 'hats', 'extras', 'pets'];
 
 test('every wardrobe item draws on the doll and as a thumbnail', () => {
   const ids = new Set();
@@ -63,9 +63,11 @@ test('every dressing challenge can be completed with available items', () => {
     ...HAIR_STYLES.map(h => L => { L.hairStyle = h.id; }),
     L => { L.makeup = { ...L.makeup, bindi: 'dot' }; },
   ];
-  for (const c of COUNTRIES) {
+  const challenges = COUNTRIES.flatMap(c => [[c.id, c.goals], ...(c.worship?.dress ? [[`${c.id} visit`, c.worship.dress]] : [])]);
+  for (const [label, goals] of challenges) {
+    const c = { id: label, goals };
     const look = JSON.parse(JSON.stringify({ ...DEFAULT_LOOK, top: null, bottom: null, shoes: null }));
-    for (const g of c.goals) {
+    for (const g of goals) {
       if (g.test(look)) continue;
       const tries = [
         ...allItems().filter(i => !i.unlock).map(i => L => {
@@ -75,13 +77,14 @@ test('every dressing challenge can be completed with available items', () => {
         }),
         ...extras,
       ];
-      const fix = tries.find(f => {
-        const L = JSON.parse(JSON.stringify(look));
-        f(L);
-        return g.test(L) && c.goals.filter(x => x.test(look)).every(x => x.test(L));
-      });
-      assert.ok(fix, `${c.id}: no unlocked item satisfies "${g.text}"`);
-      fix(look);
+      const keepsOthers = L => goals.filter(x => x.test(look)).every(x => x.test(L));
+      const attempt = fs => { const L = JSON.parse(JSON.stringify(look)); fs.forEach(f => f(L)); return g.test(L) && keepsOthers(L); };
+      // Some goals need two things (e.g. "red, white or blue on two things"), so try pairs too.
+      let fix = tries.find(f => attempt([f]));
+      let fixes = fix ? [fix] : null;
+      for (let i = 0; !fixes && i < tries.length; i++) for (let j = i + 1; !fixes && j < tries.length; j++) if (attempt([tries[i], tries[j]])) fixes = [tries[i], tries[j]];
+      assert.ok(fixes, `${c.id}: no unlocked item satisfies "${g.text}"`);
+      fixes.forEach(f => f(look));
     }
     assert.ok(c.goals.every(g => g.test(look)), `${c.id}: goals cannot all be met together`);
   }
@@ -148,4 +151,70 @@ test('offline cache lists every app file', () => {
   for (const f of [...walk('js'), ...walk('css'), ...walk('icons'), 'index.html', 'manifest.webmanifest']) {
     assert.ok(sw.includes(`'${f.split(path.sep).join('/')}'`), `sw.js is missing ${f}: run node scripts/build-sw.mjs`);
   }
+});
+
+// ---------- Beliefs, gamification and fashion show ----------
+
+import { RELIGIONS, getReligion } from '../js/data/religions.js';
+import { THEMES, judge } from '../js/data/themes.js';
+import { coverage } from '../js/items.js';
+import { beliefsQuiz } from '../js/learn.js';
+import { RANKS, BADGES, rankInfo, buy } from '../js/game.js';
+import { store } from '../js/store.js';
+
+test('places of worship are complete and use known beliefs and scenes', () => {
+  for (const r of RELIGIONS) {
+    for (const k of ['id', 'name', 'emoji', 'people', 'place', 'book', 'festivals', 'idea', 'greeting', 'fact', 'visit', 'where']) assert.ok(r[k], `${r.id} missing ${k}`);
+    for (const id of r.where) assert.ok(getCountry(id), `${r.id} lists unknown country ${id}`);
+  }
+  for (const c of COUNTRIES.filter(x => x.worship)) {
+    const w = c.worship;
+    assert.ok(w.place && w.where && w.intro && w.fact, `${c.id} worship text`);
+    assert.ok(SCENE_IDS.includes(w.scene), `${c.id} worship scene ${w.scene} missing`);
+    for (const r of w.religions) assert.ok(getReligion(r), `${c.id} unknown religion ${r}`);
+    assert.ok(w.dress || w.note, `${c.id} needs dress rules or a note`);
+    if (w.game.type === 'order') assert.ok(w.game.steps.length >= 3 && w.game.steps.every(s => s.e && s.text), `${c.id} order steps`);
+    else assert.ok(w.game.pairs.length >= 3 && w.game.pairs.every(p => p[0].text && p[1].text), `${c.id} match pairs`);
+    for (const g of w.dress || []) assert.ok(STUDIO_TABS.includes(g.tab), `${c.id} visit goal tab ${g.tab}`);
+  }
+  for (const id of ['IN', 'KR', 'TW', 'SG', 'BALI', 'US', 'UK', 'ES', 'AE', 'TH']) assert.ok(getCountry(id).worship, `${id} should have a sacred place`);
+});
+
+test('coverage reflects what the clothes actually cover', () => {
+  const w = id => freshWorn(getItem(id));
+  const base = { ...DEFAULT_LOOK, top: null, bottom: null, dress: null };
+  assert.deepEqual([...coverage({ ...base, top: w('tank'), bottom: w('shorts') })], []);
+  const modest = coverage({ ...base, dress: w('maxidress'), outer: w('abaya'), head: w('headscarf') });
+  for (const k of ['sh', 'ar', 'kn', 'lg', 'hr']) assert.ok(modest.has(k), `abaya + headscarf should cover ${k}`);
+  assert.ok(coverage({ ...base, dress: w('qipao') }).has('kn') && !coverage({ ...base, dress: w('qipao') }).has('lg'));
+  assert.ok(coverage({ ...base, top: w('sweater'), bottom: w('jeans') }).has('ar'));
+});
+
+test('beliefs quiz always includes the right answer', () => {
+  for (let i = 0; i < 40; i++) beliefsQuiz(6).forEach((q, k) => checkQ(q, `beliefs#${k}`));
+});
+
+test('fashion-show judges always score 5 to 10', () => {
+  const looks = [DEFAULT_LOOK, { ...DEFAULT_LOOK, top: null, bottom: null, shoes: null, makeup: {} }];
+  for (const item of allItems()) looks.push({ ...DEFAULT_LOOK, [item.slot]: freshWorn(item) });
+  for (const t of THEMES) {
+    assert.ok(t.tips.length >= 3 && t.tips.every(x => STUDIO_TABS.includes(x.tab)), `${t.id} tips`);
+    for (const L of looks) for (const j of judge(t, L)) assert.ok(Number.isInteger(j.score) && j.score >= 5 && j.score <= 10, `${t.id} ${j.what} ${j.score}`);
+  }
+});
+
+test('ranks, badges and the boutique', () => {
+  assert.ok(RANKS.every((r, i) => i === 0 || r.min > RANKS[i - 1].min));
+  assert.equal(rankInfo(0).rank.name, RANKS[0].name);
+  assert.equal(rankInfo(RANKS[2].min).index, 2);
+  assert.equal(rankInfo(9999).next, null);
+  assert.equal(new Set(BADGES.map(b => b.id)).size, BADGES.length);
+  for (const item of allItems()) assert.ok(!(item.price && item.unlock), `${item.id} should be bought or earned, not both`);
+  const puppy = getItem('puppy');
+  store.state.coins = puppy.price - 1;
+  assert.equal(buy(puppy), false, 'cannot buy without enough coins');
+  store.state.coins = puppy.price + 5;
+  assert.equal(buy(puppy), true);
+  assert.equal(store.state.coins, 5);
+  assert.equal(buy(puppy), false, 'cannot buy twice');
 });

@@ -3,8 +3,10 @@
 An iPad-friendly dress-up doll game for young children (built for a 7-year-old) that
 mixes fashion play with **geography**, **maths** and **English vocabulary**. The doll
 travels the world collecting passport stamps, with the most content for five places
-the player knows: **India, South Korea, Taiwan, Singapore and Bali**. Five more
-(Japan, France, Egypt, Australia, Brazil) round out the world tour.
+the player knows: **India, South Korea, Taiwan, Singapore and Bali**. Ten more
+(the USA, the UK, Spain, the UAE, Thailand, Japan, France, Egypt, Australia, Brazil)
+round out the world tour. Along the way she visits places of worship and learns,
+respectfully, about eight of the world's beliefs.
 
 It is a plain static website (HTML, CSS, JavaScript; no build step, no server, no
 tracking) that installs on the iPad home screen and works offline.
@@ -16,11 +18,13 @@ tracking) that installs on the iPad home screen and works offline.
 - 6 skin tones, 7 eye colours
 - Makeup: lipstick, eyeshadow, blush, lashes, bindi, face paint, glitter
 - Nail salon: paint every nail or one at a time, 7 nail-art styles, mehndi (henna)
-- 94 items in layers: tops, skirts and trousers, dresses, coats and drapes, scarves,
+- 117 items in layers: tops, skirts and trousers, dresses, coats and drapes, scarves,
   socks and tights, shoes, hats and crowns, necklaces, earrings, rings, bangles,
   glasses, things to hold, wings
 - Traditional outfits: saree, lehenga choli, pattu pavadai, anarkali, kurti, hanbok,
-  qipao, sarong kebaya, Balinese kebaya, kimono
+  qipao, sarong kebaya, Balinese kebaya, kimono, flamenco dress, Thai dress
+- Modest and visiting clothes: headscarf, chunni, abaya, shawl, sarong & sash
+- Pets that stand next to the doll: corgi, falcon, baby elephant, puppy, kitten, bunny, unicorn
 - Every clothing item can be recoloured (24 named colours: say "turquoise", "lavender",
   "crimson"…), patterned (dots, stripes, flowers, paisley…) and given a trim colour
 - Seasons (spring, summer, monsoon, autumn, winter) with falling snow, rain, petals or
@@ -37,11 +41,32 @@ tracking) that installs on the iPad home screen and works offline.
 4. 🛍️ **Market**: shopping maths in the local currency (rupees, won, NT dollars, rupiah…)
 5. 📖 **Words**: 4–6 new English words with pictures, meanings and sentences, then a word game
    (picture match, fill-the-blank, meanings, spelling with letter tiles)
-6. 💡 **Fun facts**: "Did you know?" cards
-7. 🛂 **Passport check**: a quiz; pass to earn the stamp and unlock a surprise item
+6. 🕊️ **Sacred place** (12 of the 15 destinations): for example the Golden Temple (Sikh),
+   Jogyesa (Buddhist), Longshan (Taoist/folk), Pura Besakih (Hindu), Meiji Jingu (Shinto),
+   Sheikh Zayed Grand Mosque, Central Synagogue in New York, Westminster Abbey and the
+   Sagrada Família; plus "harmony" streets in Singapore and Old Cairo where different
+   faiths are neighbours. She dresses to the place's visitor rules (cover shoulders,
+   knees, arms or hair; take shoes off; sarong and sash in Bali), then plays a
+   "what do visitors do?" game: putting the steps in order, or matching places to faiths.
+7. 💡 **Fun facts**: "Did you know?" cards
+8. 🛂 **Passport check**: a quiz; pass to earn the stamp and unlock a surprise item
 
-**Also**: Passport (stamps + review cards), Word Book, Brain Games (maths gym, clock,
-words, flags, capitals), stars for first-try answers.
+**World Beliefs book**: Hinduism, Islam, Christianity, Buddhism, Sikhism, Judaism, Shinto,
+and Taoism & folk religion, each with followers, place of worship, holy book, festivals,
+the main idea, a greeting (read aloud), visitor tips and a fact. Ticks fill in as she
+visits sacred places; there's a beliefs quiz too.
+
+**Games and rewards**
+- ⭐ Stars for every first-try answer set the **traveller rank** (Junior Traveller → … →
+  Legend of the World). 🪙 Coins are earned alongside and spent in the **Boutique**
+  (pets, unicorn headband, galaxy gown, glass slippers…).
+- 🏅 22 **stickers** (first stamp, Word Wizard, Kind Visitor, Supermodel…), each worth coins.
+- 🎁 A **daily gift** of coins. Missing a day costs nothing (no streaks).
+- 🎤 **Fashion Show**: pick a theme (Royal Ball, Snow Day, Festival of Lights…), dress to
+  its tips, walk the runway, and three judges score theme, colours and sparkle.
+- 🧠 **Memory Match** (flags, words, beliefs), 🧳 **Suitcase Packing** (pack for the
+  weather: Seoul in winter vs Bangkok in April), 🔎 **Map Quest** (tap the country).
+- Quizzes: maths gym, clock, words, flags, capitals, beliefs. Passport, Word Book, Photo Album.
 
 **For a child who is still learning to read**: everything has a 🔊 button, and read-aloud
 is on by default.
@@ -108,6 +133,16 @@ tests/app.test.js node:test suite
 ```
 
 ## Notes and honest caveats
+
+- **Beliefs.** The content describes what followers believe and do ("Many Muslims pray five
+  times a day…"), never that one belief is true or better, and it says that some people
+  follow no religion. Clothing is taught as **visitor rules for a specific place** (which
+  usually apply to everyone, often men too), not as "how people of religion X dress",
+  because that would be inaccurate and would stereotype: plenty of Muslim women don't
+  wear a headscarf, for example. Please read `js/data/religions.js` and the `worship`
+  entries in `js/data/countries.js` yourself; your family may want to add or reword things.
+- **Rewards.** Coins can't be bought with real money, there are no ads, and nothing is lost
+  for not playing. The judges never score below 5.
 
 - **Name.** "Barbie" is a Mattel trademark, so the app and doll artwork are original
   and the child names her own doll. That is fine for family use; if you ever share the

@@ -2,8 +2,25 @@
 // the most content. Facts were checked against encyclopaedic sources (2026); where a
 // fact is a simplification for 7-year-olds the wording says so ("about", "more than").
 
+import { coverage } from '../items.js';
+import { colorFamily } from '../util.js';
+
 const worn = (L, slot) => L[slot] && L[slot].id;
 const has = (L, slot, ...ids) => ids.includes(worn(L, slot));
+const covered = k => L => coverage(L).has(k);
+
+// Visitor dress rules used at places of worship. They apply to every visitor, not to a group of people.
+const V = {
+  shoulders: { tab: 'coats', icon: '👚', text: 'Cover your shoulders: sleeves, a shawl or a jacket', test: covered('sh') },
+  knees: { tab: 'bottoms', icon: '👗', text: 'Cover your knees: a long skirt, a long dress or trousers', test: covered('kn') },
+  arms: { tab: 'coats', icon: '🧥', text: 'Cover your arms down to the wrists', test: covered('ar') },
+  ankles: { tab: 'bottoms', icon: '👖', text: 'Wear long clothes down to the ankles', test: covered('lg') },
+  hair: { tab: 'hats', icon: '🧕', text: 'Cover your hair with a headscarf or a chunni', test: covered('hr') },
+  head: { tab: 'hats', icon: '🧣', text: 'Cover your head with a scarf or a chunni', test: covered('hr') },
+  shoesOff: { tab: 'shoes', icon: '👣', text: 'Take your shoes off (tap the shoes you are wearing)', test: L => !worn(L, 'shoes') },
+  sarong: { tab: 'bottoms', icon: '🧣', text: 'Wear a sarong and sash (or a Balinese kebaya)', test: L => has(L, 'bottom', 'sarong') || has(L, 'dress', 'balinese') },
+};
+const NO_RULES = 'There are no special clothes rules here. Just be calm, quiet and polite!';
 
 export const COUNTRIES = [
   {
@@ -56,6 +73,19 @@ export const COUNTRIES = [
       { name: 'cup of chai', emoji: '🍵', price: [1, 4] },
     ],
     funQ: { q: 'What is the national bird of India?', a: 'Peacock', wrong: ['Penguin', 'Parrot', 'Owl'] },
+    worship: {
+      place: 'The Golden Temple', where: 'Amritsar, India', religions: ['sikhism'], scene: 'gurdwara',
+      intro: 'The Golden Temple, or Harmandir Sahib, is the holiest gurdwara for Sikhs. It sits in the middle of a big pool of water and shines with real gold!',
+      dress: [V.head, V.shoesOff, V.shoulders],
+      game: { type: 'order', steps: [
+        { e: '👟', text: 'Take off your shoes and socks' },
+        { e: '🧣', text: 'Cover your head with a scarf' },
+        { e: '🦶', text: 'Walk through the shallow water to wash your feet' },
+        { e: '🌟', text: 'Walk around the pool and see the Golden Temple' },
+        { e: '🍛', text: 'Sit on the floor and share a free meal at the langar' },
+      ] },
+      fact: 'The kitchen at the Golden Temple cooks free meals for tens of thousands of people every day. Volunteers do the cooking and washing up!',
+    },
     reward: 'crown',
   },
   {
@@ -107,6 +137,18 @@ export const COUNTRIES = [
       { name: 'bingsu', emoji: '🍧', price: [4, 9] },
     ],
     funQ: { q: 'What do you get if you wear a hanbok to a royal palace in Seoul?', a: 'Free entry', wrong: ['A free puppy', 'A crown', 'A boat ride'] },
+    worship: {
+      place: 'Jogyesa Temple', where: 'Seoul, South Korea', religions: ['buddhism'], scene: 'jogyesa',
+      intro: 'Jogyesa is a Buddhist temple right in the middle of Seoul. In spring it is covered with thousands of colourful lotus lanterns.',
+      dress: [V.shoulders, V.knees, V.shoesOff],
+      game: { type: 'order', steps: [
+        { e: '🙏', text: 'Put your hands together and bow at the gate' },
+        { e: '👟', text: 'Take off your shoes before the main hall' },
+        { e: '🙇', text: 'Bow to the Buddha statue three times' },
+        { e: '🏮', text: 'Write a wish on a lotus lantern' },
+      ] },
+      fact: 'For the Buddha\'s birthday, Seoul has a huge Lotus Lantern Festival with a glowing parade at night.',
+    },
     reward: 'fairywings',
   },
   {
@@ -158,6 +200,18 @@ export const COUNTRIES = [
       { name: 'egg waffle', emoji: '🧇', price: [3, 6] },
     ],
     funQ: { q: 'What hangs inside Taipei 101 to keep it steady?', a: 'A giant golden ball', wrong: ['A big dragon', 'A swimming pool', 'A giant clock'] },
+    worship: {
+      place: 'Longshan Temple', where: 'Taipei, Taiwan', religions: ['taoism', 'buddhism'], scene: 'longshan',
+      intro: 'Longshan Temple is almost 300 years old. Buddhists, Taoists and people who follow Taiwanese folk traditions all come here to pray.',
+      dress: null, note: NO_RULES,
+      game: { type: 'order', steps: [
+        { e: '🐉', text: 'Go in through the dragon door on the right' },
+        { e: '🙏', text: 'Hold a stick of incense and bow' },
+        { e: '🌙', text: 'Ask a question by dropping two red moon blocks' },
+        { e: '🐯', text: 'Leave through the tiger door on the left' },
+      ] },
+      fact: 'Longshan Temple honours Guanyin, the goddess of mercy, together with Mazu, the goddess of the sea, and many others.',
+    },
     reward: 'wand',
   },
   {
@@ -214,6 +268,18 @@ export const COUNTRIES = [
       { name: 'fresh coconut', emoji: '🥥', price: [2, 5] },
     ],
     funQ: { q: 'What is the Merlion?', a: 'Half lion, half fish', wrong: ['Half cat, half bird', 'A big dragon', 'A merry-go-round'] },
+    worship: {
+      place: 'Harmony Street', where: 'South Bridge Road, Singapore', religions: ['hinduism', 'islam', 'buddhism', 'christianity'], scene: 'harmony',
+      intro: 'On one street in Chinatown, a Hindu temple, a mosque and a Buddhist temple stand close together, and a big cathedral is a short walk away. People of many faiths live side by side in Singapore!',
+      dress: [V.shoulders, V.knees],
+      game: { type: 'match', pairs: [
+        [{ e: '🛕', text: 'Sri Mariamman Temple' }, { e: '🕉️', text: 'Hindus' }],
+        [{ e: '🕌', text: 'Masjid Jamae (a mosque)' }, { e: '🌙', text: 'Muslims' }],
+        [{ e: '🏮', text: 'Buddha Tooth Relic Temple' }, { e: '☸️', text: 'Buddhists' }],
+        [{ e: '⛪', text: 'St Andrew\'s Cathedral' }, { e: '✝️', text: 'Christians' }],
+      ] },
+      fact: 'Singapore celebrates Racial Harmony Day every year on 21 July, when children wear clothes from different cultures to school.',
+    },
     reward: 'butterflywings',
   },
   {
@@ -266,6 +332,19 @@ export const COUNTRIES = [
       { name: 'wooden carving', emoji: '🪵', price: [4, 9] },
     ],
     funQ: { q: 'What happens in Bali on Nyepi, the Day of Silence?', a: 'Everyone stays quiet', wrong: ['A big fireworks show', 'It snows', 'Everyone sings'] },
+    worship: {
+      place: 'Pura Besakih', where: 'Mount Agung, Bali', religions: ['hinduism'], scene: 'BALI',
+      intro: 'Pura Besakih, the "Mother Temple", sits high on the slopes of Mount Agung. It is the biggest and holiest Hindu temple on Bali.',
+      dress: [V.sarong, V.shoulders],
+      game: { type: 'order', steps: [
+        { e: '🧣', text: 'Put on a sarong and a sash' },
+        { e: '🌼', text: 'Place a little flower offering (canang sari)' },
+        { e: '🌸', text: 'Pray with a flower between your fingertips' },
+        { e: '💧', text: 'A priest sprinkles holy water' },
+        { e: '🍚', text: 'Press a few grains of rice on your forehead' },
+      ] },
+      fact: 'Everyone visiting a Balinese temple wears a sarong and a sash, even tourists. You can borrow one at the gate!',
+    },
     reward: 'mermaid',
   },
   {
@@ -307,6 +386,20 @@ export const COUNTRIES = [
       { name: 'origami paper', emoji: '📄', price: [1, 5] },
     ],
     funQ: { q: 'What is hanami?', a: 'A picnic under cherry blossoms', wrong: ['A kind of sushi', 'A dance', 'A train'] },
+    worship: {
+      place: 'Meiji Jingu', where: 'Tokyo, Japan', religions: ['shinto'], scene: 'JP',
+      intro: 'Meiji Jingu is a Shinto shrine inside a forest of about 100,000 trees, right in the middle of busy Tokyo.',
+      dress: null, note: NO_RULES,
+      game: { type: 'order', steps: [
+        { e: '⛩️', text: 'Bow once at the big torii gate' },
+        { e: '🚰', text: 'Wash your hands at the water basin' },
+        { e: '🪙', text: 'Drop a coin in the offering box' },
+        { e: '🙇', text: 'Bow twice' },
+        { e: '👏', text: 'Clap twice' },
+        { e: '🙇‍♀️', text: 'Bow once more' },
+      ] },
+      fact: 'At New Year, millions of people visit Meiji Jingu to pray for a happy year.',
+    },
     reward: 'kittyears',
   },
   {
@@ -339,7 +432,7 @@ export const COUNTRIES = [
       { word: 'museum', emoji: '🖼️', meaning: 'a building full of art or old, special things', sentence: 'We saw the Mona Lisa at the ___.' },
       { word: 'bakery', emoji: '🥐', meaning: 'a shop that makes bread and cakes', sentence: 'The ___ smelled of warm bread.' },
       { word: 'autumn', emoji: '🍂', meaning: 'the season when leaves fall from trees', sentence: 'In ___, the leaves turn orange.' },
-      { word: 'stylish', emoji: '💃', meaning: 'looking smart and fashionable', sentence: 'Your beret looks very ___!' },
+      { word: 'stylish', emoji: '😎', meaning: 'looking smart and fashionable', sentence: 'Your beret looks very ___!' },
     ],
     shop: [
       { name: 'croissant', emoji: '🥐', price: [1, 3] },
@@ -389,6 +482,17 @@ export const COUNTRIES = [
       { name: 'mango juice', emoji: '🥭', price: [2, 5] },
     ],
     funQ: { q: 'What did ancient Egyptians write with?', a: 'Hieroglyphs', wrong: ['Emojis', 'Crayons', 'Typewriters'] },
+    worship: {
+      place: 'Old Cairo', where: 'Cairo, Egypt', religions: ['islam', 'christianity', 'judaism'], scene: 'cairo',
+      intro: 'In Old Cairo, a mosque, churches and a synagogue stand within a short walk of each other. They have been neighbours for hundreds of years!',
+      dress: [V.shoulders, V.knees, V.hair],
+      game: { type: 'match', pairs: [
+        [{ e: '🕌', text: 'Mosque of Amr ibn al-As' }, { e: '🌙', text: 'Muslims' }],
+        [{ e: '⛪', text: 'The Hanging Church' }, { e: '✝️', text: 'Christians' }],
+        [{ e: '🕍', text: 'Ben Ezra Synagogue' }, { e: '✡️', text: 'Jewish people' }],
+      ] },
+      fact: 'The Mosque of Amr ibn al-As was the first mosque built in Egypt, more than 1,300 years ago. Egypt is also home to the Copts, one of the oldest Christian communities in the world.',
+    },
     reward: 'goldcollar',
   },
   {
@@ -473,6 +577,283 @@ export const COUNTRIES = [
     ],
     funQ: { q: 'What language do people speak in Brazil?', a: 'Portuguese', wrong: ['Spanish', 'French', 'Japanese'] },
     reward: 'carnival',
+  },
+  {
+    id: 'US', name: 'United States', short: 'the USA', flag: '🇺🇸', color: '#3c3b6e',
+    capital: 'Washington, D.C.', capitalQ: 'Tricky one! What is the capital city of the USA?', capitalTrap: 'New York',
+    currency: { name: 'US dollar', short: 'dollars', symbol: '$', scale: 1 },
+    languages: ['English', 'Spanish'], languageLine: 'English! Lots of people also speak Spanish, and many other languages too.',
+    greeting: { text: 'Hi there', native: 'Hi there!', lang: 'en-US', meaning: 'Hello' },
+    thanks: { text: 'Thanks a lot', native: 'Thanks a lot!', lang: 'en-US' },
+    flagColors: 'red and white stripes, with 50 white stars on a blue square',
+    season: 'summer', weather: 'Hot summer days', temp: 29, landmark: 'Statue of Liberty',
+    story: {
+      title: 'Fireworks in New York',
+      intro: 'Hi there! I am in New York City on the Fourth of July, the USA\'s birthday! Tonight there will be fireworks over the river, and look, there\'s the Statue of Liberty!',
+      dress: 'Let\'s wear red, white and blue for the party!',
+      done: 'Ready for the fireworks! Bang, pop, sparkle!',
+    },
+    goals: [
+      { tab: 'tops', icon: '🇺🇸', text: 'Wear red, white or blue on two things', test: L => ['top', 'bottom', 'dress', 'outer', 'shoes', 'head', 'scarf'].filter(s => L[s] && ['red', 'white', 'blue'].includes(colorFamily(L[s].color))).length >= 2 },
+      { tab: 'bottoms', icon: '👖', text: 'Wear jeans or a denim jacket', test: L => has(L, 'bottom', 'jeans') || has(L, 'outer', 'denim') },
+      { tab: 'shoes', icon: '👟', text: 'Sneakers for walking around the big city', test: L => has(L, 'shoes', 'sneakers') },
+    ],
+    facts: [
+      { emoji: '🗽', text: 'The Statue of Liberty was a present from France to the USA in 1886.' },
+      { emoji: '⭐', text: 'The USA has 50 states. There is one star for each state on its flag.' },
+      { emoji: '🌙', text: 'In 1969, American astronauts were the first people ever to walk on the Moon.' },
+      { emoji: '🏜️', text: 'The Grand Canyon is a giant valley more than 400 kilometres long.' },
+      { emoji: '🗣️', text: 'People in New York speak hundreds of different languages!' },
+    ],
+    vocab: [
+      { word: 'freedom', emoji: '🗽', meaning: 'being free to make your own choices', sentence: 'The Statue of Liberty stands for ___.' },
+      { word: 'fireworks', emoji: '🎆', meaning: 'bright, noisy lights that burst in the sky', sentence: 'We watched the ___ light up the sky.' },
+      { word: 'astronaut', emoji: '🧑‍🚀', meaning: 'a person who travels into space', sentence: 'The ___ walked on the Moon.' },
+      { word: 'bridge', emoji: '🌉', meaning: 'something built so you can cross over water or a road', sentence: 'We walked across the long ___.' },
+    ],
+    shop: [
+      { name: 'hot dog', emoji: '🌭', price: [2, 5] },
+      { name: 'pretzel', emoji: '🥨', price: [2, 4] },
+      { name: 'slice of pizza', emoji: '🍕', price: [2, 5] },
+      { name: 'bagel', emoji: '🥯', price: [1, 4] },
+      { name: 'big red apple', emoji: '🍎', price: [1, 2] },
+    ],
+    funQ: { q: 'Which country gave the Statue of Liberty to the USA?', a: 'France', wrong: ['Japan', 'Brazil', 'Egypt'] },
+    worship: {
+      place: 'Central Synagogue', where: 'New York, USA', religions: ['judaism'], scene: 'synagogue',
+      intro: 'Central Synagogue in New York has two towers with round domes on top. It is more than 150 years old!',
+      dress: [V.shoulders, V.knees],
+      game: { type: 'order', steps: [
+        { e: '👗', text: 'Wear modest clothes' },
+        { e: '🧢', text: 'Men and boys put on a kippah at the door' },
+        { e: '🤫', text: 'Sit quietly during the prayers' },
+        { e: '📜', text: 'Watch the Torah scroll being taken out of the Ark' },
+        { e: '👋', text: 'Say "Shabbat shalom" on the way out' },
+      ] },
+      fact: 'The USA has freedom of religion: people can follow any religion, or none, and worship in peace.',
+    },
+    reward: 'libertycrown',
+  },
+  {
+    id: 'UK', name: 'United Kingdom', short: 'the UK', flag: '🇬🇧', color: '#012169',
+    capital: 'London', capitalQ: 'What is the capital city of the United Kingdom?',
+    currency: { name: 'pound sterling', short: 'pounds', symbol: '£', scale: 1 },
+    languages: ['English', 'Welsh', 'Scottish Gaelic'], languageLine: 'English! In Wales many people also speak Welsh, and some people in Scotland speak Scottish Gaelic.',
+    greeting: { text: 'Hiya', native: 'Hiya!', lang: 'en-GB', meaning: 'A friendly British hello' },
+    thanks: { text: 'Cheers', native: 'Cheers!', lang: 'en-GB' },
+    flagColors: 'red, white and blue crosses mixed together: the Union Jack',
+    season: 'autumn', weather: 'Cool and drizzly', temp: 12, landmark: 'Big Ben',
+    story: {
+      title: 'Rainy Day in London',
+      intro: 'Hiya! I am in London, the capital of the United Kingdom. Big Ben is bonging, red buses are rolling by, and oh no, it\'s starting to rain!',
+      dress: 'We\'re going to a garden party near the palace, but it\'s drizzly. Help me get ready!',
+      done: 'Lovely! Now let\'s have afternoon tea.',
+    },
+    goals: [
+      { tab: 'extras', icon: '☂️', text: 'Bring an umbrella or wear a raincoat', test: L => has(L, 'prop', 'umbrella') || has(L, 'outer', 'raincoat') },
+      { tab: 'shoes', icon: '🥾', text: 'Rain boots (the British call them "wellies")', test: L => has(L, 'shoes', 'rainboots') },
+      { tab: 'hats', icon: '🎩', text: 'A fancy fascinator hat for the garden party', test: L => has(L, 'head', 'fascinator') },
+    ],
+    facts: [
+      { emoji: '🔔', text: 'Big Ben is the name of the giant bell inside the famous clock tower.' },
+      { emoji: '🗺️', text: 'The United Kingdom is made of four countries: England, Scotland, Wales and Northern Ireland.' },
+      { emoji: '🏰', text: 'Buckingham Palace, the King\'s home in London, has 775 rooms!' },
+      { emoji: '🚇', text: 'London\'s Underground, "the Tube", is the oldest underground railway in the world. It opened in 1863.' },
+      { emoji: '🫖', text: 'Afternoon tea with scones, jam and cream is a famous British treat.' },
+    ],
+    vocab: [
+      { word: 'umbrella', emoji: '☂️', meaning: 'something you hold over your head when it rains', sentence: 'It is raining, so open your ___!' },
+      { word: 'castle', emoji: '🏰', meaning: 'a big, strong building with towers', sentence: 'The knights lived in a stone ___.' },
+      { word: 'teapot', emoji: '🫖', meaning: 'a pot for making and pouring tea', sentence: 'Granny poured tea from the ___.' },
+      { word: 'crown', emoji: '👑', meaning: 'a special hat worn by a king or queen', sentence: 'The king wore a golden ___.' },
+      { word: 'drizzle', emoji: '🌦️', meaning: 'very light rain', sentence: 'It started to ___ in London.' },
+    ],
+    shop: [
+      { name: 'cup of tea', emoji: '🫖', price: [1, 3] },
+      { name: 'scone with jam', emoji: '🧁', price: [2, 4] },
+      { name: 'fish and chips', emoji: '🐟', price: [6, 9] },
+      { name: 'toy red bus', emoji: '🚌', price: [3, 8] },
+      { name: 'umbrella', emoji: '☂️', price: [5, 9] },
+    ],
+    funQ: { q: 'What is Big Ben?', a: 'A giant bell in a clock tower', wrong: ['A big bear', 'A bridge', 'A red bus'] },
+    worship: {
+      place: 'Westminster Abbey', where: 'London, UK', religions: ['christianity'], scene: 'abbey',
+      intro: 'Westminster Abbey is a huge, ancient church in London. Kings and queens have been crowned here for almost 1,000 years!',
+      dress: null, note: NO_RULES,
+      game: { type: 'order', steps: [
+        { e: '🚪', text: 'Walk in through the great west door' },
+        { e: '🤫', text: 'Switch to your quiet voice' },
+        { e: '👑', text: 'See the old chair where kings and queens are crowned' },
+        { e: '🎶', text: 'Listen to the choir sing' },
+      ] },
+      fact: 'King Charles III was crowned in Westminster Abbey in 2023.',
+    },
+    reward: 'corgi',
+  },
+  {
+    id: 'ES', name: 'Spain', flag: '🇪🇸', color: '#c60b1e',
+    capital: 'Madrid', capitalQ: 'What is the capital city of Spain?',
+    currency: { name: 'euro', short: 'euros', symbol: '€', scale: 1 },
+    languages: ['Spanish', 'Catalan', 'Basque', 'Galician'], languageLine: 'Spanish! In some parts of Spain people also speak Catalan, Basque or Galician.',
+    greeting: { text: 'Hola', native: '¡Hola!', lang: 'es-ES', say: 'oh-lah', meaning: 'Hello' },
+    thanks: { text: 'Gracias', native: 'Gracias', lang: 'es-ES', say: 'grah-thee-as' },
+    flagColors: 'red and yellow stripes, with a coat of arms',
+    season: 'spring', weather: 'Warm and sunny', temp: 24, landmark: 'Sagrada Família',
+    story: {
+      title: 'Flamenco Fiesta',
+      intro: '¡Hola! I am in Seville for the April Fair! There are flamenco dancers, horses and paper lanterns everywhere. Later we will take a train to Barcelona to see the amazing Sagrada Família.',
+      dress: 'Help me get ready to dance flamenco!',
+      done: '¡Olé! Clap, clap, stomp!',
+    },
+    goals: [
+      { tab: 'world', icon: '💃', text: 'Wear a flamenco dress', test: L => has(L, 'dress', 'flamenco') },
+      { tab: 'hats', icon: '🌹', text: 'Put a flamenco rose in your hair', test: L => has(L, 'head', 'flamencoflower') },
+      { tab: 'extras', icon: '🪭', text: 'Hold a fan', test: L => has(L, 'prop', 'fan', 'castanets') },
+    ],
+    facts: [
+      { emoji: '💃', text: 'Flamenco, with its clapping, guitars and stomping feet, comes from southern Spain.' },
+      { emoji: '⛪', text: 'Builders started the Sagrada Família in 1882, and they are still working on it!' },
+      { emoji: '🍅', text: 'At the La Tomatina festival, thousands of people throw squishy tomatoes at each other!' },
+      { emoji: '🌍', text: 'Spanish is spoken by about 500 million people around the world.' },
+      { emoji: '🌙', text: 'Many families in Spain eat dinner late, at about 9 or 10 o\'clock at night.' },
+    ],
+    vocab: [
+      { word: 'dance', emoji: '💃', meaning: 'to move your body to music', sentence: 'Flamenco dancers ___ and clap.' },
+      { word: 'guitar', emoji: '🎸', meaning: 'an instrument with strings that you strum', sentence: 'He played the ___ while we danced.' },
+      { word: 'tomato', emoji: '🍅', meaning: 'a juicy red fruit, often eaten like a vegetable', sentence: 'There is a big ___ fight every August in Spain.' },
+      { word: 'church', emoji: '⛪', meaning: 'a building where Christians pray', sentence: 'The Sagrada Família is a giant ___.' },
+      { word: 'orange', emoji: '🍊', meaning: 'a round, juicy fruit', sentence: 'Seville has ___ trees along its streets.' },
+    ],
+    shop: [
+      { name: 'paella', emoji: '🥘', price: [6, 9] },
+      { name: 'churros with chocolate', emoji: '🍫', price: [2, 5] },
+      { name: 'orange juice', emoji: '🍊', price: [1, 3] },
+      { name: 'olives', emoji: '🫒', price: [1, 4] },
+      { name: 'hand fan', emoji: '🪭', price: [3, 8] },
+    ],
+    funQ: { q: 'Which dance comes from the south of Spain?', a: 'Flamenco', wrong: ['Ballet', 'Hula', 'Samba'] },
+    worship: {
+      place: 'Sagrada Família', where: 'Barcelona, Spain', religions: ['christianity'], scene: 'ES',
+      intro: 'The Sagrada Família is a giant church in Barcelona designed by Antoni Gaudí. It is so big that it is still being finished!',
+      dress: [V.shoulders, V.knees],
+      game: { type: 'order', steps: [
+        { e: '👚', text: 'Cover your shoulders' },
+        { e: '🤫', text: 'Walk in quietly' },
+        { e: '🌈', text: 'See rainbow light shining through the coloured windows' },
+        { e: '🌳', text: 'Look up at the pillars, shaped like a forest of trees' },
+      ] },
+      fact: 'Gaudí wanted the inside of the church to feel like a forest, so the pillars branch out like trees.',
+    },
+    reward: 'castanets',
+  },
+  {
+    id: 'AE', name: 'United Arab Emirates', short: 'the UAE', flag: '🇦🇪', color: '#00732f',
+    capital: 'Abu Dhabi', capitalQ: 'Tricky one! What is the capital city of the UAE?', capitalTrap: 'Dubai',
+    currency: { name: 'UAE dirham', short: 'dirhams', symbol: 'AED', scale: 1 },
+    languages: ['Arabic', 'English'], languageLine: 'Arabic! Lots of people also speak English, because people from all over the world live and work there.',
+    greeting: { text: 'As-salamu alaykum', native: 'السلام عليكم', lang: 'ar-AE', say: 'as-sa-laa-mu a-lay-kum', meaning: 'Peace be upon you' },
+    thanks: { text: 'Shukran', native: 'شكرا', lang: 'ar-AE', say: 'shook-ran' },
+    flagColors: 'green, white and black stripes, with a red stripe on the side',
+    season: 'summer', weather: 'Scorching hot and sunny', temp: 40, landmark: 'Burj Khalifa',
+    story: {
+      title: 'Desert and Skyscrapers',
+      intro: 'As-salamu alaykum! I am in the United Arab Emirates. In Dubai I can see the Burj Khalifa, the tallest building in the world! Next we are going on a desert safari.',
+      dress: 'The desert sun is scorching. Long, light clothes and a hat will keep me cool and safe from sunburn.',
+      done: 'Ready for the sand dunes! Can we see a falcon?',
+    },
+    goals: [
+      { tab: 'hats', icon: '👒', text: 'Wear a sun hat (or a headscarf)', test: L => has(L, 'head', 'sunhat', 'headscarf') },
+      { tab: 'extras', icon: '🕶️', text: 'Put on sunglasses', test: L => has(L, 'glasses', 'sunglasses', 'heartglasses', 'starglasses') },
+      { tab: 'bottoms', icon: '👗', text: 'Long, light clothes protect your skin from the hot sun', test: covered('kn') },
+    ],
+    facts: [
+      { emoji: '🏙️', text: 'The Burj Khalifa in Dubai is the tallest building in the world: 828 metres!' },
+      { emoji: '🦅', text: 'Falcons are so special in the UAE that there is a hospital just for falcons in Abu Dhabi.' },
+      { emoji: '🗺️', text: 'The UAE is made of seven emirates, including Abu Dhabi and Dubai.' },
+      { emoji: '⛷️', text: 'Dubai has an indoor ski slope with real snow, inside a shopping mall!' },
+      { emoji: '🐪', text: 'In camel races, little robot jockeys ride on the camels!' },
+    ],
+    vocab: [
+      { word: 'falcon', emoji: '🦅', meaning: 'a fast bird that hunts', sentence: 'The ___ flew high over the desert.' },
+      { word: 'mosque', emoji: '🕌', meaning: 'a building where Muslims pray', sentence: 'The white ___ has 82 domes.' },
+      { word: 'oasis', emoji: '🌴', meaning: 'a green place with water in the desert', sentence: 'We found palm trees at the ___.' },
+      { word: 'scorching', emoji: '🥵', meaning: 'very, very hot', sentence: 'The desert sun is ___!' },
+    ],
+    shop: [
+      { name: 'karak tea', emoji: '☕', price: [1, 3] },
+      { name: 'shawarma', emoji: '🌯', price: [4, 9] },
+      { name: 'luqaimat sweets', emoji: '🍯', price: [3, 7] },
+      { name: 'toy camel', emoji: '🐪', price: [5, 9] },
+      { name: 'box of dates', emoji: '🌴', price: [2, 6] },
+    ],
+    funQ: { q: 'What is the tallest building in the world?', a: 'Burj Khalifa', wrong: ['Taipei 101', 'Eiffel Tower', 'Big Ben'] },
+    worship: {
+      place: 'Sheikh Zayed Grand Mosque', where: 'Abu Dhabi, UAE', religions: ['islam'], scene: 'mosque',
+      intro: 'The Sheikh Zayed Grand Mosque is sparkling white, with 82 domes. Visitors from all over the world come to see it, and they can borrow an abaya at the door.',
+      dress: [V.arms, V.ankles, V.hair, V.shoesOff],
+      game: { type: 'order', steps: [
+        { e: '🧕', text: 'Wear long, loose clothes and cover your hair' },
+        { e: '👟', text: 'Take off your shoes at the door' },
+        { e: '🤫', text: 'Walk softly and quietly on the giant carpet' },
+        { e: '🕌', text: 'Watch people pray, all facing towards Makkah' },
+      ] },
+      fact: 'Its carpet is one of the biggest hand-made carpets in the world. About 1,200 people worked on it!',
+    },
+    reward: 'falcon',
+  },
+  {
+    id: 'TH', name: 'Thailand', flag: '🇹🇭', color: '#2d2a4a',
+    capital: 'Bangkok', capitalQ: 'What is the capital city of Thailand?',
+    currency: { name: 'Thai baht', short: 'baht', symbol: '฿', scale: 10 },
+    languages: ['Thai'], languageLine: 'Thai! It has its own beautiful alphabet with 44 consonants.',
+    greeting: { text: 'Sawasdee ka', native: 'สวัสดีค่ะ', lang: 'th-TH', say: 'sa-wat-dee kah', meaning: 'Hello (girls and women say "ka" at the end)' },
+    thanks: { text: 'Khob khun ka', native: 'ขอบคุณค่ะ', lang: 'th-TH', say: 'kop-koon-kah' },
+    flagColors: 'red, white and blue stripes, with a wide blue stripe in the middle',
+    season: 'summer', weather: 'Very hot, perfect for splashing!', temp: 35, landmark: 'Grand Palace',
+    story: {
+      title: 'Songkran Splash',
+      intro: 'Sawasdee ka! It is Songkran, the Thai New Year, in Bangkok! Everyone is splashing water to wash away bad luck and to cool down. Watch out!',
+      dress: 'Let\'s wear something flowery and get ready to splash!',
+      done: 'Splash! Happy Thai New Year!',
+    },
+    goals: [
+      { tab: 'world', icon: '🌺', text: 'Wear a Thai dress, or a top with a flower pattern', test: L => has(L, 'dress', 'thai') || !!(L.top && L.top.pattern === 'floral') },
+      { tab: 'shoes', icon: '👡', text: 'Sandals for splashing', test: L => has(L, 'shoes', 'sandals') },
+    ],
+    facts: [
+      { emoji: '🐘', text: 'The elephant is the national animal of Thailand.' },
+      { emoji: '💦', text: 'At Songkran, the Thai New Year in April, people splash water to wash away bad luck.' },
+      { emoji: '📜', text: 'Long ago, Thailand was called Siam.' },
+      { emoji: '🛺', text: 'Tuk-tuks are little three-wheeled taxis that zoom around Bangkok.' },
+      { emoji: '🙏', text: 'Thai people say hello with a wai: hands pressed together and a little bow.' },
+    ],
+    vocab: [
+      { word: 'elephant', emoji: '🐘', meaning: 'a huge grey animal with a long trunk', sentence: 'The baby ___ sprayed water with its trunk.' },
+      { word: 'splash', emoji: '💦', meaning: 'to throw water so it flies everywhere', sentence: 'At Songkran we ___ water on our friends.' },
+      { word: 'mango', emoji: '🥭', meaning: 'a sweet, juicy yellow fruit', sentence: 'I ate ___ with sticky rice.' },
+      { word: 'golden', emoji: '🌟', meaning: 'shiny and yellow, like gold', sentence: 'The temple roof is ___ and sparkly.' },
+    ],
+    shop: [
+      { name: 'mango sticky rice', emoji: '🥭', price: [4, 9] },
+      { name: 'pad thai', emoji: '🍜', price: [4, 9] },
+      { name: 'coconut ice cream', emoji: '🥥', price: [2, 5] },
+      { name: 'water squirter', emoji: '💦', price: [3, 9] },
+      { name: 'elephant trousers', emoji: '🐘', price: [5, 9] },
+    ],
+    funQ: { q: 'What do people splash on each other at Songkran?', a: 'Water', wrong: ['Paint', 'Mud', 'Lemonade'] },
+    worship: {
+      place: 'Temple of the Emerald Buddha', where: 'Grand Palace, Bangkok', religions: ['buddhism'], scene: 'TH',
+      intro: 'The Temple of the Emerald Buddha is inside the Grand Palace in Bangkok. Its little Buddha statue is carved from green jade, not emerald!',
+      dress: [V.shoulders, V.knees, V.shoesOff],
+      game: { type: 'order', steps: [
+        { e: '👚', text: 'Cover your shoulders and knees' },
+        { e: '👟', text: 'Take off your shoes before going into the chapel' },
+        { e: '🧘', text: 'Sit with your feet pointing away from the Buddha' },
+        { e: '🙏', text: 'Press your hands together and bow (a wai)' },
+      ] },
+      fact: 'The King of Thailand changes the Emerald Buddha\'s golden clothes three times a year: for the hot, rainy and cool seasons.',
+    },
+    reward: 'elephant',
   },
 ];
 
